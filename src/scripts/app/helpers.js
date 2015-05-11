@@ -33,34 +33,12 @@ String.prototype.trim = function() {
 String.prototype.capitalize = function() {
 	return this.charAt(0).toUpperCase() + this.slice(1);
 };
-/* String.prototype.humanize = function( splitAt ) {
-	return (splitAt ? this.slice(0, splitAt) + ' ' + this.slice(splitAt) : this).replace(/_|-/g, ' ').replace(/(\w+)/g, function(match) {
-		return match.charAt(0).toUpperCase() + match.slice(1);
-	});
-}; */
 
 //jQuery extensions
 (function ($) {
-	$.fn.getClassName = function(append){
-		var cl = $(this).attr('class');
-		return cl && (append + '.' + cl.replace(' ','.'));
-	};
 	
 	$.fn.validEmail = function() {
 		return /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test( $(this).val());
-	};
-	
-	$.fn.getParentKey = function( keys, values, value ){
-		var self = this;
-			
-		$.each(keys, function( i, item ){
-			if( self.closest( item ).length > 0 ) {
-				value = values[i];
-				return;
-			}
-		});
-		
-		return value;
 	};
 	
 	$.extend($.expr[":"], {
@@ -77,13 +55,5 @@ String.prototype.capitalize = function() {
 			return $(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
 		};
 	});*/
-	
-	/* $.fn.formatSimilar = function( $elem ){
-		return $(this).text( $elem.text().split(' - ')[1] ); //;stringDiff( title, $(this).text() );
-	}; */
-	
-	/* $.fn.humanize = function( splitAt ){
-		return $(this).text( $(this).text().humanize(splitAt) );
-	};*/
 	
 }(jQuery));

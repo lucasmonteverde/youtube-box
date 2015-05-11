@@ -5,6 +5,10 @@
   "author": "Lucas Monteverde",
   "license": "MIT",
   "main": "server.js",
+  "repository": {
+	"type": "git",
+    "url": "git://github.com/lucasmonteverde/youtube-box.git"
+  },
   "engines": {
     "node": ">= 0.10.0"
   },

@@ -4,11 +4,19 @@ var router = require('express').Router(),
 	User = require('../models/user'),
 	Video = require('../models/video');
 	
-router.get('/:user', function(req, res) {
+router.get('/:user', function(req, res, next) {
 	
-	var feed;
+	var feed, query;
 	
-	User.findById(req.user._id).then(function(user){
+	if( req.params.user ) {
+		query = User.findOne({'youtube.id':req.params.user})
+	} else if( req.user ) {
+		query = User.findById(req.user._id);
+	}else{
+		next(new Error('user not defined'));
+	}
+	
+	query.then(function(user){
 		
 		feed = new Feed({
 			title: 'New Subscription Videos for userId: ' + user.youtube.id,
