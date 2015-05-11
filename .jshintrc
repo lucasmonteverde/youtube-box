@@ -1,0 +1,9 @@
+{
+	"node": true,
+	"browser": true,
+	"curly": false,
+	"devel": true,
+	"quotmark": false,
+	"jquery": true,
+	"globals": {}
+}
