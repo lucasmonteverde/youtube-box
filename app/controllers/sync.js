@@ -1,11 +1,8 @@
 var router = require('express').Router(),
+	helpers = require('../config/helpers'),
 	Sync = require('../jobs/sync');
 	
-function isLoggedIn(req, res, next) {
-	return req.isAuthenticated() ? next() : res.redirect('/');
-}
-
-router.all('*', isLoggedIn);
+router.all('*', helpers.isLoggedIn);
 
 router.get('/subscriptions', function(req, res, next) {
 	

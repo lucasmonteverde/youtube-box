@@ -1,6 +1,6 @@
-var Promise = require('bluebird'),
-	request = require('request-promise'),
+var request = require('request-promise'),
 	User = require('../models/user'),
+	Subscription = require('../models/subscription'),
 	Channel = require('../models/channel'),
 	Video = require('../models/video');
 	
@@ -38,13 +38,19 @@ var subscriptions = exports.subscriptions = function(channelId, nextPageToken){
 				return item.snippet.resourceId.channelId;
 			});
 			
-			User.findOneAndUpdate({'youtube.id': items[0].snippet.channelId}, nextPageToken ? {
-				$addToSet: { channels: { $each: channelsId } }
-			} : {
-				channels: channelsId
-			}, function(err){
-				if (err) console.error( err );
-			});
+			User
+				.findOne({'youtube.id': items[0].snippet.channelId})
+				.select('_id')
+				.then(function(user){
+					return Subscription.findOneAndUpdate({'user': user._id}, nextPageToken ? {
+						$addToSet: { channels: { $each: channelsId } }
+					} : {
+						channels: channelsId
+					}, { upsert: true });
+				})
+				.catch(function(err){
+					console.error( err );
+				});
 		}
 		
 		console.log('items', items && items.length);
@@ -77,14 +83,6 @@ var activities = exports.activities = function(channelId, nextPageToken){
 			channel: item.snippet.channelId,
 		}, { upsert: true }, function(err, video){
 			if (err) console.error( err );
-			
-			//load video details;
-			if( video ) {
-				videos(video._id);
-			}/* else{
-				console.log('video', video);
-			} */
-			
 		});
 		
 	})
@@ -92,6 +90,10 @@ var activities = exports.activities = function(channelId, nextPageToken){
 		
 		if( items && items.length ){
 			console.log('items', items[0].snippet.channelTitle, items.length);
+			
+			videos(items.map(function(item){
+				return item.contentDetails.upload.videoId;
+			}).join(','));
 		}
 	});
 };
@@ -103,7 +105,7 @@ var videos = exports.videos = function(videoId, nextPageToken){
 	api('videos', {
 		id: videoId,
 		part: 'contentDetails,statistics',
-		fields: 'nextPageToken,items(contentDetails,statistics)',
+		fields: 'nextPageToken,items(id,contentDetails,statistics)',
 		maxResults: 50,
 		pageToken: nextPageToken
 	}, videos, videoId)
@@ -130,15 +132,13 @@ var videos = exports.videos = function(videoId, nextPageToken){
 			duration = ((parseInt(result[1] || 0,10) * 60) + parseInt(result[2] || 0,10) ) * 60 + parseInt(result[3] || 0,10);
 		}
 		
-		Video.findByIdAndUpdate(videoId, {
+		Video.findByIdAndUpdate(item.id, {
 			duration: duration,
-			viewCount: item.statistics.viewCount,
-			likeCount: item.statistics.likeCount
+			views: item.statistics.viewCount,
+			likes: item.statistics.likeCount,
+			dislikes: item.statistics.dislikeCount,
 		}, { upsert: true }, function(err, video){
 			if (err) console.error( err );
-			
-			//load video details;
-			
 		});
 		
 	});
@@ -151,16 +151,17 @@ var videos = exports.videos = function(videoId, nextPageToken){
 
 var api = function(method, filter, callback, callbackArgs){
 	
-	console.time('request');
+	//console.time('request');
 	
 	filter.key = process.env.YOUTUBE_API_KEY;
 	
 	return request({
 		url: 'https://www.googleapis.com/youtube/v3/' + method,
 		qs: filter,
-		json: true
+		json: true,
+		gzip: true
 	}).then(function(data){
-		console.timeEnd('request');
+		//console.timeEnd('request');
 		
 		//console.log('data', data);
 		

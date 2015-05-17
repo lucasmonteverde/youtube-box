@@ -2,8 +2,8 @@
 
 var express = require('express'),
 	logger = require('morgan'),
-	//cookieParser = require('cookie-parser'),
-	//bodyParser = require('body-parser'),
+	cookieParser = require('cookie-parser'),
+	bodyParser = require('body-parser'),
 	compression = require('compression'),
 	session = require('express-session'),
 	RedisStore = require('connect-redis')(session),
@@ -30,15 +30,16 @@ app.use(logger('dev'));
 app.use(compression());
 app.use(express.static('dist'));
 
-//app.use(cookieParser());
-//app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: true }));
 //app.use(bodyParser.json());
 
 app.use(session({
 	secret: 'youtube-box',
 	store: new RedisStore({client: cache}),
 	resave: false,
-	saveUninitialized: false
+	saveUninitialized: false,
+	cookie: { maxAge: 2592000000 } //30 days
 }));
 
 app.use(passport.initialize());

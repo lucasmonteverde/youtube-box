@@ -145,18 +145,6 @@ body {
 
 /*  Bootstrap Clearfix */
 
-
-.thumbnail {
- 
-  .channel img{
-      display: inline;
-      height: 25px;
-  }
-  .caption {
-    overflow: hidden;
-  }
-}
-
 /*  Tablet  */
 @media (min-width:767px){
 
@@ -231,4 +219,77 @@ body {
   .col-lg-6:nth-child(2n+1){
     clear: left;
   }
+}
+
+a {
+	color: #222;
+}
+
+.control{
+	position:relative;
+	
+	form{
+		position: absolute;
+		top: 7px;
+		right:0;
+	}
+}
+
+.thumbnail {
+	.channel {
+		display: block;
+		font-weight:bold;
+		text-decoration: none;
+		margin: 5px auto;
+		max-width: 320px;
+		
+		img{
+			display: inline-block;
+			height: 25px;
+		}
+	}
+	.caption {
+		overflow: hidden;
+	}
+	
+	h3{
+		margin-top:0;
+	}
+}
+
+.video.watched{
+	opacity: .5;
+}
+
+.thumb{
+	position: relative;
+	display: block;
+	max-width: 320px;
+	margin: auto;
+	
+	figcaption{
+		color: #fff;
+		position: absolute;
+		bottom: 5px;
+		right: 5px;
+		background-color: #222;
+		font-weight: bold;
+		opacity: .75;
+	}
+}
+
+.description{
+	height: 120px;
+	overflow: hidden;
+}
+
+.progress {
+	height: 16px;
+	margin: 5px auto;
+	max-width: 320px;
+	
+	.progress-bar{
+		font-size: 11px;
+		line-height: 16px;
+	}
 }

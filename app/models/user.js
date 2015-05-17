@@ -16,10 +16,6 @@ var UserSchema = new Schema({
 		type: Boolean,
 		default: true
 	},
-	channels: [{
-		type: String,
-		ref: 'Channel'
-	}],
 	youtube: Schema.Types.Mixed
 }, {collection: 'youtube-users'});
 

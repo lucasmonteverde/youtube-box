@@ -1,0 +1,11 @@
+<html>
+<head>
+	<script>
+		window.onunload = window.onbeforeunload = refreshParent;
+		function refreshParent() {
+			window.opener.location.reload();
+		}
+		window.close();
+	</script>
+</head>
+</html>

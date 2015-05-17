@@ -7,8 +7,9 @@ var VideoSchema = new Schema({
 	description: String,
 	published: Date,
 	duration: Number,
-	viewCount: Number,
-	likeCount: Number,
+	views: Number,
+	likes: Number,
+	dislikes: Number,
 	//media: String,
 	channel: {
 		type: String,

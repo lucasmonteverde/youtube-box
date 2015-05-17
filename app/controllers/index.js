@@ -1,23 +1,19 @@
 var router = require('express').Router(),
-	Promise = require('bluebird'),
-	User = require('../models/user'),
+	moment = require('moment'),
+	Subscription = require('../models/subscription'),
 	Video = require('../models/video');
-
-function isLoggedIn(req, res, next) {
-	return req.isAuthenticated() ? next() : res.redirect('/');
-}
 
 router.get('/', function(req, res) {
 	
-	var data = { 
+	var data = {
 		title: 'Youtube Box',
-		user: req.user,
+		sort: req.query.sort || req.cookies.sort,
 		message: req.session.messages
 	};
 	
 	if( req.isAuthenticated() ){
 		
-		videos(req, res);
+		videos(req, res, data);
 	
 	}else{
 		res.render('login', data);
@@ -25,41 +21,62 @@ router.get('/', function(req, res) {
 	
 });
 
+var videos = function(req, res, data) {
 
-var videos = function(req, res) {
-
-	/* User
-		.findById(req.user._id)
-		.populate('channels')
-		.populate('channels.videos')
-		.exec(function(err, user){
-			if (err) console.error( err );
+	Subscription
+		.findOne({user:req.user._id})
+		.then(function(subscription){
 			
-			res.json(user);
-		
-		}); */
-		
-	User.findById(req.user._id).then(function(user){
-		return Video.find({channel: {$in: user.channels}})
-					.sort({published: -1})
-					.populate('channel')
-					.exec();
-	}).then(function(videos){
-		
-		res.format({
-			json: function(){
-				res.json(videos);
-			},
-			html: function(){
-				res.render('videos', {
-					title: 'Videos',
-					videos: videos
-				});
+			if(!subscription)
+				return [];
+				
+			var query = Video.find({
+						_id: {$nin: subscription.watched},
+						channel: {$in: subscription.channels},
+						//published: {$gte: moment().subtract(1,'day')}
+					});
+					
+			if( req.query.filter ){
+				query.where('title', new RegExp(req.query.filter,'i'));
 			}
+			
+			//TODO: rewrite swith case to map
+			switch(data.sort){
+				case 'old':
+					query.sort('published');
+					break;
+				case 'views':
+					query.sort('-views');
+					break;
+				case 'duration':
+					query.sort('-duration');
+					break;
+				case 'new':
+				default:
+					query.sort('-published');
+					break;
+			}
+			
+			return query.populate('channel');
+		})
+		.then(function(videos){
+			
+			res.format({
+				json: function(){
+					res.json(videos);
+				},
+				html: function(){
+					
+					data.title = 'Videos - ' + data.title;
+					data.videos = videos;
+					
+					res.render('videos', data);
+				}
+			});
+			
 		});
-		
-	});
 	
 };
+
 
 module.exports = router;
