@@ -2,12 +2,6 @@
 
 var moment = require('moment');
 
-//require("moment-duration-format");
-
-moment.duration.fn.format = function(format) {
-  return moment(this.as('milliseconds')).format(format);
-}
-
 exports.isLoggedIn = function(req, res, next) {
 	return req.isAuthenticated() ? next() : res.redirect('/');
 };
@@ -61,10 +55,13 @@ exports.formatLargeNumber = function(num, digits) {
 	return num;
 };
 
+exports.youtubeVideo = function(id){
+	return 'https://www.youtube.com/watch?v=' + id;
+};
+
 exports.selected = function(value, elem) {
 	return value === elem ? 'selected' : '';
-}
-
+};
 
 exports.active = function(active, path, strict){
 	return (strict ? active === path : new RegExp(active).test(path)) ? 'active' : '';

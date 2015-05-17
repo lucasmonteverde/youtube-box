@@ -7,7 +7,6 @@ router.get('/', function(req, res) {
 	
 	var data = {
 		title: 'Youtube Box',
-		sort: req.query.sort || req.cookies.sort,
 		message: req.session.messages
 	};
 	
@@ -23,6 +22,13 @@ router.get('/', function(req, res) {
 
 var videos = function(req, res, data) {
 
+	data.sort = req.query.sort || req.cookies.sort;
+	
+	//TODO: Cookie options management
+	if( req.query.sort ){
+		res.cookie('sort', data.sort, { maxAge: 2592000000, httpOnly: true });
+	}
+	
 	Subscription
 		.findOne({user:req.user._id})
 		.then(function(subscription){
@@ -36,26 +42,12 @@ var videos = function(req, res, data) {
 						//published: {$gte: moment().subtract(1,'day')}
 					});
 					
-			if( req.query.filter ){
-				query.where('title', new RegExp(req.query.filter,'i'));
+			if( req.query.search ){
+				query.where('title', new RegExp(req.query.search,'i'));
+				data.search = req.query.search;
 			}
 			
-			//TODO: rewrite swith case to map
-			switch(data.sort){
-				case 'old':
-					query.sort('published');
-					break;
-				case 'views':
-					query.sort('-views');
-					break;
-				case 'duration':
-					query.sort('-duration');
-					break;
-				case 'new':
-				default:
-					query.sort('-published');
-					break;
-			}
+			query.sort(data.sort ? data.sort : '-published');
 			
 			return query.populate('channel');
 		})

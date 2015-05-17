@@ -13,7 +13,6 @@ var subscriptions = exports.subscriptions = function(channelId, nextPageToken){
 		channelId: channelId,
 		part: 'snippet',
 		fields: 'nextPageToken,items(snippet)',
-		maxResults: 50,
 		pageToken: nextPageToken
 	}, subscriptions, channelId)
 	.each(function(item){
@@ -68,7 +67,6 @@ var activities = exports.activities = function(channelId, nextPageToken){
 		part: 'snippet,contentDetails',
 		fields: 'nextPageToken,items(snippet,contentDetails)',
 		publishedAfter: dateFilter,
-		maxResults: 50,
 		pageToken: nextPageToken
 	}, activities, channelId)
 	.filter(function(item){
@@ -106,7 +104,6 @@ var videos = exports.videos = function(videoId, nextPageToken){
 		id: videoId,
 		part: 'contentDetails,statistics',
 		fields: 'nextPageToken,items(id,contentDetails,statistics)',
-		maxResults: 50,
 		pageToken: nextPageToken
 	}, videos, videoId)
 	.each(function(item){
@@ -137,6 +134,7 @@ var videos = exports.videos = function(videoId, nextPageToken){
 			views: item.statistics.viewCount,
 			likes: item.statistics.likeCount,
 			dislikes: item.statistics.dislikeCount,
+			definition: item.contentDetails.definition
 		}, { upsert: true }, function(err, video){
 			if (err) console.error( err );
 		});
@@ -154,6 +152,8 @@ var api = function(method, filter, callback, callbackArgs){
 	//console.time('request');
 	
 	filter.key = process.env.YOUTUBE_API_KEY;
+	filter.prettyPrint = false;
+	filter.maxResults = 50;
 	
 	return request({
 		url: 'https://www.googleapis.com/youtube/v3/' + method,

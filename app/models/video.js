@@ -10,7 +10,7 @@ var VideoSchema = new Schema({
 	views: Number,
 	likes: Number,
 	dislikes: Number,
-	//media: String,
+	definition: String,
 	channel: {
 		type: String,
 		ref: 'Channel'

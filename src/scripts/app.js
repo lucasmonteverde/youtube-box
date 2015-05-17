@@ -48,6 +48,8 @@ $(document).ready(function(){
 	});
 	
 	$('.watched-all').click(function(e){
+		e.preventDefault();
+		
 		var $video = $('.video');
 		
 		var videoId = $video.map(function(){
@@ -60,12 +62,53 @@ $(document).ready(function(){
 	});
 	
 	$('.sort').change(function(){
-		var self = $(this),
-			value = self.val() || 'new';
+		var self = $(this);
+			//value = self.val() || 'new';
+			
+		self.closest('form').submit();
 		
-		Cookies.set('sort', value, { expires: 30, path: '/' });
+		//location.href = new Uri(location.href).replaceQueryParam('sort', value).toString();
+	});
+	
+	$('.filter').submit(function(){
 		
-		location.href = new Uri(location.href).replaceQueryParam('sort', value).toString();
+		//$('input,select[name,value=""]').attr('name', '');
+		$(this).find('input, select').each(function(){
+			var self = $(this);
+			if( self.val() === ''){
+				self.removeAttr('name');
+			}
+		});
+		
+	});
+	
+	var defaultThumb = 'mqdefault.';
+	
+	$('.thumb img').hover(function(){
+		var self = $(this);
+		
+		var i = setInterval(function(){
+			
+			var counter = self.data('thumb') || 0;
+			counter = counter + 1 > 3 ? 1 : counter + 1;
+			
+			self.attr('src', self.attr('src').replace(self.data('thumb') ? /\d\./ : defaultThumb, counter + '.') );
+			
+			self.data('thumb', counter);
+			
+		}, 1000);
+		
+		self.data('interval', i);
+		
+	}, function(){
+		var self = $(this);
+		
+		self.attr('src', self.attr('src').replace(/\d\./, defaultThumb) );
+		
+		self.removeData('thumb');
+		
+		clearInterval( self.data('interval') );
+		
 	});
 	
 	
