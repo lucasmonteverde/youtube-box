@@ -1,5 +1,6 @@
 var router = require('express').Router(),
 	moment = require('moment'),
+	_ = require('lodash'),
 	Subscription = require('../models/subscription'),
 	Video = require('../models/video');
 
@@ -10,9 +11,16 @@ router.get('/', function(req, res) {
 		message: req.session.messages
 	};
 	
+	/*req.app.on('sync', function(user, length){
+		console.log(user , length);
+	});*/
+	
 	if( req.isAuthenticated() ){
 		
 		videos(req, res, data);
+		//data.videos = [];
+		
+		//res.render('videos', data);
 	
 	}else{
 		res.render('login', data);
@@ -31,14 +39,20 @@ var videos = function(req, res, data) {
 	
 	Subscription
 		.findOne({user:req.user._id})
+		.populate({
+			path: 'channels', 
+			select: '-description', 
+			options : {sort: 'title'} 
+		})
 		.then(function(subscription){
 			
 			if(!subscription)
 				return [];
 				
+			data.channels = subscription.channels;
+				
 			var query = Video.find({
 						_id: {$nin: subscription.watched},
-						channel: {$in: subscription.channels},
 						//published: {$gte: moment().subtract(1,'day')}
 					});
 					
@@ -47,11 +61,23 @@ var videos = function(req, res, data) {
 				data.search = req.query.search;
 			}
 			
+			if( req.query.channel ){
+				query.where('channel', req.query.channel);
+				data.channel = req.query.channel;
+			}else{
+				query.where('channel', {$in: subscription.channels});
+			}
+			
 			query.sort(data.sort ? data.sort : '-published');
 			
-			return query.populate('channel');
+			return query;
+		})
+		.each(function(video){
+			video.channel = _.find(data.channels, { '_id': video.channel });
 		})
 		.then(function(videos){
+			
+			//req.app.emit('sync', 'query done');
 			
 			res.format({
 				json: function(){

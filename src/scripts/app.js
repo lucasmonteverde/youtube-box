@@ -61,7 +61,7 @@ $(document).ready(function(){
 		});
 	});
 	
-	$('.sort').change(function(){
+	$('.filter select').change(function(){
 		var self = $(this);
 			//value = self.val() || 'new';
 			

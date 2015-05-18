@@ -1,13 +1,20 @@
 
 <div class="row page-header">
-	<h1 class="col-sm-6">
-		Youtube Box <span class="text-muted videos">{{videos.length}}</span>
+	<h1 class="col-sm-3">
+		Videos <span class="text-muted videos">{{videos.length}}</span>
 	</h1>
 	
-	<form class="col-sm-6 text-right form-inline filter">
+	<form class="col-sm-9 text-right form-inline filter">
+		
+		<select name="channel" class="form-control channel">
+			<option value="">Channels</option>
+			{{#each channels}}
+				<option value="{{_id}}" {{selected _id ../channel }}>{{title}}</option>
+			{{/each}}
+		</select>
 		
 		<div class="input-group">
-			<input type="search" name="search" value="{{search}}" results="5" placeholder="Search by title" class="form-control search" />
+			<input type="text" name="search" value="{{search}}" placeholder="Search by title" class="form-control search" />
 			<div class="input-group-btn">
 				<button  type="submit" role="submit" class="btn btn-default"><i class="glyphicon glyphicon-search"></i></button>
 			</div>
@@ -63,6 +70,12 @@
 					</p>
 				</div>
 			</div>
+		</div>
+	{{else}}
+		<div class="container well text-center">
+			<h1>No videos found!</h1>
+			<p class="lead">We are fetching your subscriptions from Youtube.</p>
+			<p>Please wait a moment...</p>
 		</div>
 	{{/videos}}
 </div>

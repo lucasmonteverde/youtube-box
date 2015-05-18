@@ -7,7 +7,7 @@ router.all('*', helpers.isLoggedIn);
 router.post('/watched', function(req, res, next) {
 	
 	if( ! req.body.video ) 
-		next(new Error('video is not set'));
+		return next(new Error('video is not set'));
 	
 	Subscription
 		.findOneAndUpdate({user:req.user._id}, {

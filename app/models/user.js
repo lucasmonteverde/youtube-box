@@ -1,5 +1,6 @@
-var mongoose	= require('mongoose'),
-	Schema		= mongoose.Schema;
+var mongoose = require('mongoose'),
+	Sync = require('../jobs/sync'),
+	Schema = mongoose.Schema;
 
 var UserSchema = new Schema({
 	name: { 
@@ -16,9 +17,20 @@ var UserSchema = new Schema({
 		type: Boolean,
 		default: true
 	},
+	sync: Boolean,
 	youtube: Schema.Types.Mixed
 }, {collection: 'youtube-users'});
 
 UserSchema.index({ 'youtube.id': 1 }, {unique: true});
+
+UserSchema.pre('save', function(done){
+	
+	if( ! this.sync ) {
+		Sync.subscriptions(this.youtube.id);
+		this.sync = true;
+	}
+	
+	done();
+});
 
 module.exports = mongoose.model('User', UserSchema);

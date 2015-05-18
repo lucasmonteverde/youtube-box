@@ -33,8 +33,7 @@ var youtube = new YoutubeStrategy({
 		.then(function(user) {
 			if (!user) {
 				user = new User({
-					name: profile.displayName,
-					//email: profile.emails[0].value,
+					name: profile.displayName || 'user',
 					youtube: {
 						id: profile.id || profile._json.id
 					}
