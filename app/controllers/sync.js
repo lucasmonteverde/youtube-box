@@ -6,7 +6,7 @@ router.all('*', helpers.isLoggedIn);
 
 router.get('/subscriptions', function(req, res, next) {
 	
-	Sync.subscriptions(req.user.youtube.id);
+	Sync.subscriptions(req.user);
 	
 	res.send('status done');
 });

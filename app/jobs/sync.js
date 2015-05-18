@@ -6,15 +6,15 @@ var request = require('request-promise'),
 	
 //require('request-debug')(request);
 
-var subscriptions = exports.subscriptions = function(channelId, nextPageToken){
+var subscriptions = exports.subscriptions = function(user, nextPageToken){
 	
 	api('subscriptions', {
-		//mine: true,
-		channelId: channelId,
+		mine: true,
+		//channelId: channelId,
 		part: 'snippet',
 		fields: 'nextPageToken,items(snippet)',
 		pageToken: nextPageToken
-	}, subscriptions, channelId)
+	}, subscriptions, user)
 	.each(function(item){
 		
 		//console.log('each', item);
@@ -37,19 +37,13 @@ var subscriptions = exports.subscriptions = function(channelId, nextPageToken){
 				return item.snippet.resourceId.channelId;
 			});
 			
-			User
-				.findOne({'youtube.id': items[0].snippet.channelId})
-				.select('_id')
-				.then(function(user){
-					return Subscription.findOneAndUpdate({'user': user._id}, nextPageToken ? {
-						$addToSet: { channels: { $each: channelsId } }
-					} : {
-						channels: channelsId
-					}, { upsert: true });
-				})
-				.catch(function(err){
-					console.error( err );
-				});
+			Subscription.findOneAndUpdate({'user': user._id}, nextPageToken ? {
+				$addToSet: { channels: { $each: channelsId } }
+			} : {
+				channels: channelsId
+			}, { upsert: true }, function(err){
+				if(err) console.error( err );
+			});
 		}
 		
 		console.log('items', items && items.length);
@@ -151,16 +145,25 @@ var api = function(method, filter, callback, callbackArgs){
 	
 	//console.time('request');
 	
-	filter.key = process.env.YOUTUBE_API_KEY;
 	filter.prettyPrint = false;
 	filter.maxResults = 50;
 	
-	return request({
+	var params = {
 		url: 'https://www.googleapis.com/youtube/v3/' + method,
 		qs: filter,
 		json: true,
 		gzip: true
-	}).then(function(data){
+	};
+	
+	if ( filter.mine && callbackArgs.youtube ){
+		params.auth = {
+			bearer: callbackArgs.youtube.accessToken
+		};
+	}else{
+		filter.key = process.env.YOUTUBE_API_KEY;
+	}
+	
+	return request(params).then(function(data){
 		//console.timeEnd('request');
 		
 		//console.log('data', data);

@@ -7,7 +7,7 @@ new CronJob('00 00 * * * *', function() {
 	User.find().then(function(users){
 		return users;
 	}).each(function(user){
-		Sync.subscriptions(user.youtube.id);
+		Sync.subscriptions(user);
 	});
 	
 }, null, true);
