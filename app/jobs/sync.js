@@ -1,54 +1,89 @@
 var request = require('request-promise'),
+	Promise = require('bluebird'),
+	moment = require('moment'),
+	refresh = require('passport-oauth2-refresh'),
 	User = require('../models/user'),
 	Subscription = require('../models/subscription'),
 	Channel = require('../models/channel'),
 	Video = require('../models/video');
 	
 //require('request-debug')(request);
+Promise.promisifyAll(refresh);
+
+var refreshAccessToken = exports.refreshAccessToken = function(user, nextPageToken){
+	
+	if( user.youtube.accessTokenUpdate > moment().subtract(55, 'minutes') ) {
+		return Promise.resolve(user);
+	}
+	
+	return refresh
+		.requestNewAccessTokenAsync('youtube', user.youtube.refreshToken)
+		.then(function(result){
+			console.log( 'accessToken', result[0] );
+			
+			user.youtube.accessToken = result[0];
+			user.youtube.accessTokenUpdate = new Date();
+			
+			user.markModified('youtube');
+			
+			user.save();
+	
+			return user;
+		})
+		.catch(function(err) {
+			console.error(err);
+			
+			return user;
+		});
+};
 
 var subscriptions = exports.subscriptions = function(user, nextPageToken){
 	
-	api('subscriptions', {
-		mine: true,
-		//channelId: channelId,
-		part: 'snippet',
-		fields: 'nextPageToken,items(snippet)',
-		pageToken: nextPageToken
-	}, subscriptions, user)
-	.each(function(item){
-		
-		//console.log('each', item);
-		
-		Channel.findByIdAndUpdate(item.snippet.resourceId.channelId, {
-			title: item.snippet.title,
-			description: item.snippet.description,
-			thumbnail: item.snippet.thumbnails.default.url
-		}, { upsert: true }, function(err, channel){
-			if (err) console.error( err );
-		});
-		
-		activities(item.snippet.resourceId.channelId);
-		
-	})
-	.then(function(items){
-		
-		if( items && items.length ){
-			var channelsId = items.map(function(item){
-				return item.snippet.resourceId.channelId;
+	refreshAccessToken(user)
+		.then(function(user){
+			return api('subscriptions', {
+				mine: true,
+				//channelId: channelId,
+				part: 'snippet',
+				fields: 'nextPageToken,items(snippet)',
+				pageToken: nextPageToken
+			}, subscriptions, user);
+		})
+		.each(function(item){
+				
+			//console.log('each', item);
+			
+			Channel.findByIdAndUpdate(item.snippet.resourceId.channelId, {
+				title: item.snippet.title,
+				description: item.snippet.description,
+				thumbnail: item.snippet.thumbnails.default.url
+			}, { upsert: true }, function(err, channel){
+				if (err) console.error( err );
 			});
 			
-			Subscription.findOneAndUpdate({'user': user._id}, nextPageToken ? {
-				$addToSet: { channels: { $each: channelsId } }
-			} : {
-				channels: channelsId
-			}, { upsert: true }, function(err){
-				if(err) console.error( err );
-			});
-		}
-		
-		console.log('items', items && items.length);
-		
-	});
+			activities(item.snippet.resourceId.channelId);
+			
+		})
+		.then(function(items){
+			
+			if( items && items.length ){
+				var channelsId = items.map(function(item){
+					return item.snippet.resourceId.channelId;
+				});
+				
+				Subscription.findOneAndUpdate({'user': user._id}, nextPageToken ? {
+					$addToSet: { channels: { $each: channelsId } }
+				} : {
+					channels: channelsId
+				}, { upsert: true }, function(err){
+					if(err) console.error( err );
+				});
+			}
+			
+			console.log('items', items && items.length);
+			
+		});
+	
 };
 
 var activities = exports.activities = function(channelId, nextPageToken){
@@ -155,11 +190,11 @@ var api = function(method, filter, callback, callbackArgs){
 		gzip: true
 	};
 	
-	if ( filter.mine && callbackArgs.youtube ){
+	if ( filter.mine && callbackArgs.youtube ) {
 		params.auth = {
 			bearer: callbackArgs.youtube.accessToken
 		};
-	}else{
+	} else {
 		filter.key = process.env.YOUTUBE_API_KEY;
 	}
 	
@@ -179,5 +214,23 @@ var api = function(method, filter, callback, callbackArgs){
 		console.error('request', e.error);
 		
 		return [];
+	});
+};
+
+var getUserEmail = exports.getUserEmail = function(user){
+	request({
+		url: 'https://www.googleapis.com/plus/v1/people/me',
+		json: true,
+		gzip: true,
+		auth:{
+			bearer: user.youtube.accessToken
+		}
+	}).then(function(result){
+		
+		if(result && result.emails){
+			user.email = result.emails[0].value;
+			
+			user.save();
+		}
 	});
 };
