@@ -26,8 +26,9 @@ var youtube = new YoutubeStrategy({
 	callbackURL: '/auth/youtube/callback',
 	scope: [
 		'https://www.googleapis.com/auth/youtube.readonly',
-		'https://www.googleapis.com/auth/userinfo.email'
-	] //'email'
+		'email'
+		//'https://www.googleapis.com/auth/userinfo.email',
+	]
 }, function(accessToken, refreshToken, profile, done) {
 	console.log('profile', profile);
 	//console.log('accessToken', accessToken);
