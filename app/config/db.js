@@ -3,7 +3,7 @@ var mongoose = require('mongoose'),
 
 mongoose.connect(dbURI);
 
-//mongoose.set('debug', process.env.ENV !== 'production');
+mongoose.set('debug', process.env.ENV !== 'production');
 
 mongoose.connection
 	.on('connected', function () {

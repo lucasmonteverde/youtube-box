@@ -53,7 +53,7 @@ var videos = function(req, res, data) {
 				
 			var query = Video.find({
 						_id: {$nin: subscription.watched},
-						//published: {$gte: moment().subtract(1,'day')}
+						published: {$gte: moment().subtract(2,'month').toDate()}
 					});
 					
 			if( req.query.search ){

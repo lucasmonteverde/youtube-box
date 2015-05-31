@@ -4,11 +4,26 @@ exports.isLoggedIn = function(req, res, next) {
 	return req.isAuthenticated() ? next() : res.redirect('/');
 };
 
+exports.isAdmin = function(req, res, next) {
+	return req.isAuthenticated() && req.user.admin ? next() : res.redirect('/');
+};
+
+
 exports.formatHTML = function(text) {
-	return text
+	return text && text
 		.replace(/(\r\n|\n|\r)/gm, '<br />')
 		.replace(/\b(?:https?|ftp):\/\/[a-z0-9-+&@#\/%?=~_|!:,.;]*[a-z0-9-+&@#\/%=~_|]/gim, '<a href="$&" target="_blank">$&</a>') // http://, https://, ftp://
 		.replace(/(^|[^\/])(www\.[\S]+(\b|$))/gim, '$1<a href="http://$2" target="_blank">$2</a>'); // www. sans http:// or https://
+};
+
+exports.excerpt = function(text) {
+	var limit = 100;
+	
+	if( text && text.length > limit) {
+		text = text.substring(0,limit) + '...';
+	}
+	
+	return text;
 };
 
 exports.formatDate = function(date) {

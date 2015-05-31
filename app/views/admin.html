@@ -1,26 +1,87 @@
 <h1 class="page-header">Dashboard</h1>
 
 <div class="row placeholders">
-	<div class="col-xs-6 col-sm-3 placeholder">
+	<div class="col-xs-4 placeholder">
 		<h4>Users</h4>
 		<span class="text-muted">{{users}}</span>
 	</div>
-	<div class="col-xs-6 col-sm-3 placeholder">
-		<h4>Videos</h4>
-		<span class="text-muted">{{videos}}</span>
-	</div>
-	<div class="col-xs-6 col-sm-3 placeholder">
+	<div class="col-xs-4 placeholder">
 		<h4>Channels</h4>
 		<span class="text-muted">{{channels}}</span>
 	</div>
+	<div class="col-xs-4 placeholder">
+		<h4>Videos</h4>
+		<span class="text-muted">{{videos}}</span>
+	</div>
 </div>
 
-<div class="col-xs-6 col-sm-3">
-	{{#with mostWatchedChannel}}
-		<h4>Most Watched Channel <span class="text-muted">{{count}}</span></h4>
-		<a href="https://www.youtube.com/channel/{{id}}" title="{{title}}" class="channel">
-			<img src="{{thumbnail}}" alt="{{title}}" />
-			<span>{{title}}</span>
-		</a>
-	{{/with}}
+<div class="row">
+	<div class="col-xs-12 col-md-3">
+		<h4>Top 5 Most Watched Channels</h4>
+		<div class="list-group">
+		{{#each mostWatched.channels}}
+			{{#with _id}}
+				<a href="https://www.youtube.com/channel/{{id}}" title="{{title}}" class="channel list-group-item">
+					<div class="media-left">
+						<img src="{{thumbnail}}" alt="{{title}}"  class="">
+					</div>
+					<div class="media-body">
+						<h4 class="list-group-item-heading">{{title}} <span class="badge">{{../count}}</span></h4>
+						<p class="list-group-item-text">
+							{{excerpt description}}
+						</p>
+					</div>
+				</a>
+			{{/with}}
+		{{/each}}
+		</div>
+	</div>
+	
+	<div class="col-xs-12 col-md-6 col-lg-4 col-lg-offset-1">
+		<h4>Top 5 Most Watched Videos</h4>
+		{{#each mostWatched.videos}}
+			{{#with _id}}
+				<div class="thumbnail">
+					<a href="https://www.youtube.com/channel/{{channel.id}}" title="{{channel.title}}" class="channel">
+						<img src="{{channel.thumbnail}}" alt="{{channel.title}}" />
+						<span>{{channel.title}}</span>
+					</a>
+					
+					<a href="{{youtubeVideo id}}" title="{{title}}" class="thumb">
+						<img src="https://i.ytimg.com/vi/{{id}}/mqdefault.jpg" alt="{{title}}" />
+						<figcaption>{{formatTime duration}}</figcaption>
+					</a>
+					
+					<div class="caption">
+						<h3><a href="{{youtubeVideo id}}" title="{{title}}">{{title }}</a> <span class="badge">{{../count}}</span> </h3>
+						
+						<div class="info clearfix">
+							<p class="pull-left"><strong>Published:</strong> {{formatDate published}}</p>
+							<p class="pull-right"><strong>Views:</strong> {{formatLargeNumber views 1}}</p>
+						</div>
+						{{#if likes}}
+							<p><strong>Rating:</strong> {{formatRating likes dislikes}}</p>
+						{{/if}}
+					</div>
+				</div>
+			{{/with}}
+		{{/each}}
+	</div>
+	
+	<div class="col-xs-12 col-md-3 col-lg-offset-1">
+		<h4>Top 5 Most Active Users</h4>
+		<div class="list-group">
+		{{#each mostActiveUser}}
+			{{#with user}}
+				<div class="list-group-item">
+					<h4 class="list-group-item-heading">{{name}}</h4>
+					<div class="list-group-item-text">
+						<p>Watched: <span class="badge">{{../watched.length}}</span></p>
+						<p>Channels: <span class="badge">{{../channels.length}}</span></p>
+					</div>
+				</div>
+			{{/with}}
+		{{/each}}
+		</div>
+	</div>
 </div>

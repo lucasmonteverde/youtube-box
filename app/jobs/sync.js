@@ -89,7 +89,8 @@ var subscriptions = exports.subscriptions = function(user, nextPageToken){
 			
 			console.log('items', items && items.length);
 			
-		}).catch(function(err) {
+		})
+		.catch(function(err) {
 			console.error(err);
 		});
 	
@@ -101,7 +102,7 @@ var activities = exports.activities = function(channelId, nextPageToken){
 		channelId: channelId,
 		part: 'snippet,contentDetails',
 		fields: 'nextPageToken,items(snippet,contentDetails)',
-		publishedAfter: moment().subtract(1, 'month'),
+		publishedAfter: moment().subtract(1, 'month').toDate(),
 		pageToken: nextPageToken
 	}, activities, channelId)
 	.filter(function(item){
@@ -128,6 +129,9 @@ var activities = exports.activities = function(channelId, nextPageToken){
 				return item.contentDetails.upload.videoId;
 			}).join(','));
 		}
+	})
+	.catch(function(err) {
+		console.error(err);
 	});
 };
 
@@ -174,6 +178,9 @@ var videos = exports.videos = function(videoId, nextPageToken){
 			if (err) console.error( err );
 		});
 		
+	})
+	.catch(function(err) {
+		console.error(err);
 	});
 	/* .then(function(items){
 		

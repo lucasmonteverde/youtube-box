@@ -82,7 +82,7 @@ $(document).ready(function(){
 		
 	});
 	
-	var defaultThumb = 'mqdefault.';
+	/*var defaultThumb = 'mqdefault.';
 	
 	$('.thumb img').hover(function(){
 		var self = $(this);
@@ -109,7 +109,7 @@ $(document).ready(function(){
 		
 		clearInterval( self.data('interval') );
 		
-	});
+	});*/
 	
 	
 	var API = {

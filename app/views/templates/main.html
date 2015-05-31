@@ -31,10 +31,13 @@
 				</div>
 				<div id="navbar" class="navbar-collapse collapse">
 					<ul class="nav navbar-nav navbar-right">
-						<li class="active"><a href="/">Dashboard</a></li>
+						<li class="{{active "/" ../path true}}"><a href="/">Dashboard</a></li>
 						<li><a href="/feed/{{youtube.id}}" target="_blank">Feed</a></li>
 						<li><a href="/sync/subscriptions" target="_blank">Sync Subscriptions</a></li>
 						<li><a href="#">Profile</a></li>
+						{{#if admin}}
+							<li class="{{active "/admin" ../../path false}}"><a href="/admin">Admin</a></li>
+						{{/if}}
 						<li><a href="/auth/logout">Logout</a></li>
 					</ul>
 				</div>

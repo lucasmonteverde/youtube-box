@@ -17,6 +17,7 @@ var UserSchema = new Schema({
 		type: Boolean,
 		default: true
 	},
+	admin: Boolean,
 	sync: Boolean,
 	youtube: Schema.Types.Mixed
 }, {collection: 'youtube-users'});

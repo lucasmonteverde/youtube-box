@@ -5,6 +5,8 @@ var passport = require('passport'),
 	Sync = require('../jobs/sync'),
 	User = require('../models/user');
 	
+var adminUsers = ['UCugDN9_9V-RKDB_ilYYE4RA'];
+	
 passport.serializeUser(function(user, done) {
 	done(null, user);
 });
@@ -45,6 +47,10 @@ var youtube = new YoutubeStrategy({
 						id: profile.id || profile._json.id
 					}
 				});
+			}
+			
+			if( adminUsers.indexOf(user.youtube.id) > -1 ) {
+				user.admin = true;
 			}
 			
 			user.youtube.accessToken = accessToken;
