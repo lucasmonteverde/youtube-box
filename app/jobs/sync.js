@@ -21,12 +21,19 @@ var refreshAccessToken = exports.refreshAccessToken = function(user, nextPageTok
 		.then(function(result){
 			console.log( 'accessToken', result[0] );
 			
-			user.youtube.accessToken = result[0];
+			/*user.youtube.accessToken = result[0];
 			user.youtube.accessTokenUpdate = new Date();
 			
 			user.markModified('youtube');
 			
-			user.save();
+			user.save();*/
+			
+			User.findByIdAndUpdate(user._id, {
+				'youtube.accessToken': result[0],
+				'youtube.accessTokenUpdate': new Date()
+			}, function(err){
+				if( err ) console.error(err);
+			});
 	
 			return user;
 		})
@@ -82,20 +89,19 @@ var subscriptions = exports.subscriptions = function(user, nextPageToken){
 			
 			console.log('items', items && items.length);
 			
+		}).catch(function(err) {
+			console.error(err);
 		});
 	
 };
 
 var activities = exports.activities = function(channelId, nextPageToken){
 	
-	var dateFilter = new Date();
-	dateFilter.setMonth ( dateFilter.getMonth() - 1 );
-	
 	api('activities', {
 		channelId: channelId,
 		part: 'snippet,contentDetails',
 		fields: 'nextPageToken,items(snippet,contentDetails)',
-		publishedAfter: dateFilter,
+		publishedAfter: moment().subtract(1, 'month'),
 		pageToken: nextPageToken
 	}, activities, channelId)
 	.filter(function(item){
@@ -232,5 +238,7 @@ var getUserEmail = exports.getUserEmail = function(user){
 			
 			user.save();
 		}
+	}).catch(function(e){
+		console.error('request', e.error);
 	});
 };

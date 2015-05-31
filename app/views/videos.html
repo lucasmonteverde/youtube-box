@@ -74,8 +74,11 @@
 	{{else}}
 		<div class="container well text-center">
 			<h1>No videos found!</h1>
-			<p class="lead">We are fetching your subscriptions from Youtube.</p>
-			<p>Please wait a moment...</p>
+			
+			{{#unless search}}
+				<p class="lead">We are fetching your subscriptions from Youtube.</p>
+				<p>Please wait a moment...</p>
+			{{/unless}}
 		</div>
 	{{/videos}}
 </div>

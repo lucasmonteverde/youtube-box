@@ -26,7 +26,7 @@ UserSchema.index({ 'youtube.id': 1 }, {unique: true});
 UserSchema.pre('save', function(done){
 	
 	if( ! this.sync ) {
-		Sync.subscriptions(this.youtube.id);
+		Sync.subscriptions(this);
 		this.sync = true;
 	}
 	

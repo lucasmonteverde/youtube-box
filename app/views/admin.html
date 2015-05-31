@@ -1,0 +1,26 @@
+<h1 class="page-header">Dashboard</h1>
+
+<div class="row placeholders">
+	<div class="col-xs-6 col-sm-3 placeholder">
+		<h4>Users</h4>
+		<span class="text-muted">{{users}}</span>
+	</div>
+	<div class="col-xs-6 col-sm-3 placeholder">
+		<h4>Videos</h4>
+		<span class="text-muted">{{videos}}</span>
+	</div>
+	<div class="col-xs-6 col-sm-3 placeholder">
+		<h4>Channels</h4>
+		<span class="text-muted">{{channels}}</span>
+	</div>
+</div>
+
+<div class="col-xs-6 col-sm-3">
+	{{#with mostWatchedChannel}}
+		<h4>Most Watched Channel <span class="text-muted">{{count}}</span></h4>
+		<a href="https://www.youtube.com/channel/{{id}}" title="{{title}}" class="channel">
+			<img src="{{thumbnail}}" alt="{{title}}" />
+			<span>{{title}}</span>
+		</a>
+	{{/with}}
+</div>
