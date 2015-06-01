@@ -1,5 +1,7 @@
 'use strict';
 
+require('newrelic');
+
 var express = require('express'),
 	logger = require('morgan'),
 	cookieParser = require('cookie-parser'),
@@ -16,8 +18,8 @@ var express = require('express'),
 	app = express();
 
 app.engine('html', hbs({
-	defaultLayout: 'main', 
-	extname: '.html', 
+	defaultLayout: 'main',
+	extname: '.html',
 	layoutsDir: 'app/views/templates',
 	partialsDir: 'app/views/partials',
 	helpers: require('./app/config/helpers')

@@ -29,8 +29,7 @@ router.get('/profile', helpers.isLoggedIn, function(req, res, next){
 		.lean()
 		.then(function(subscription){
 			
-			data.channels = subscription.channels.length;
-			data.watched = subscription.watched.length;
+			data.subscription = subscription;
 				
 			return Video.count({channel: {$in: subscription.channels}});
 			
