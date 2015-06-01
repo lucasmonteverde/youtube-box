@@ -1,0 +1,108 @@
+@charset "UTF-8";
+
+@import "_config";
+
+body {
+	@include default-font;
+	overflow-x: hidden;
+	webkit-tap-highlight-color: $brand-primary;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	@include heading-font;
+}
+
+::-moz-selection, ::selection {
+	text-shadow: none;
+	background: $brand-primary;
+}
+
+.btn-primary {
+	@include heading-font;
+	background-image: linear-gradient(#e72510, #d9230f 6%, #cb210e);
+	background-repeat: no-repeat;
+	border: 1px solid #a91b0c;
+	filter: none;
+	font-size: 18px;
+	padding: 12px 40px;
+}
+
+.btn:focus,
+.btn:active,
+.btn.active,
+.btn:active:focus {
+	outline: none;
+}
+
+header {
+	position: relative;
+	color: white;
+	min-height: 450px;
+	
+	.row {
+		padding-top: 15%;
+		padding-bottom: 15%;
+	}
+	
+	&:after, &:before{
+		content: "";
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: 0;
+		bottom: 0;
+	}
+	
+	&:before {
+		z-index: -2;
+		background-image: url('../img/header-bg.jpg');
+		background-repeat: none;
+		background-attachment: scroll;
+		background-position: center center;
+		background-size: cover;
+	}
+	
+	&:after {
+		z-index: -1;
+		background-color: rgba(72, 72, 72, 0.85);
+	}
+}
+
+section {
+	padding: 50px 0;
+	background-color: #f7f7f7;
+}
+
+// Footer
+
+footer {
+	padding: 25px 0;
+		
+	span.copyright {
+		line-height: 40px;
+		@include heading-font;
+	}
+}
+
+// Social Buttons
+
+ul.social-buttons {
+	margin-bottom: 0;
+	
+	li a {
+		display: block;
+		background-color: $gray-darkest;
+		height: 40px;
+		width: 40px;
+		border-radius: 100%;
+		font-size: 20px;
+		line-height: 40px;
+		color: white;
+		outline: none;
+		transition: all 0.3s;
+		
+		&:hover, &:focus, &:active {
+			background-color: $brand-primary;
+		}
+	}
+}

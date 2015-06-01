@@ -1,17 +1,39 @@
 <h1 class="page-header">Dashboard</h1>
 
-<div class="row placeholders">
-	<div class="col-xs-4 placeholder">
-		<h4>Users</h4>
-		<span class="text-muted">{{users}}</span>
+<div class="row">
+	<div class="col-sm-4 col-xl-3">
+		<div class="panel panel-tile text-center">
+			<div class="panel-body">
+				<h2>{{users}}</h2>
+				<h6 class="text-success">Users</h6>
+			</div>
+			<div class="panel-footer">
+				<span> last user </span>
+				<strong>{{lastUsers}}</strong>
+			</div>
+		</div>
 	</div>
-	<div class="col-xs-4 placeholder">
-		<h4>Channels</h4>
-		<span class="text-muted">{{channels}}</span>
+	<div class="col-sm-4 col-xl-3">
+		<div class="panel panel-tile text-center">
+			<div class="panel-body">
+				<h2>{{channels}}</h2>
+				<h6 class="text-success">Channels</h6>
+			</div>
+			<div class="panel-footer">
+				<span> &nbsp; </span>
+			</div>
+		</div>
 	</div>
-	<div class="col-xs-4 placeholder">
-		<h4>Videos</h4>
-		<span class="text-muted">{{videos}}</span>
+	<div class="col-sm-4 col-xl-3">
+		<div class="panel panel-tile text-center">
+			<div class="panel-body">
+				<h2>{{videos}}</h2>
+				<h6 class="text-success">Videos</h6>
+			</div>
+			<div class="panel-footer">
+				<span> &nbsp; </span>
+			</div>
+		</div>
 	</div>
 </div>
 
@@ -23,7 +45,7 @@
 			{{#with _id}}
 				<a href="https://www.youtube.com/channel/{{id}}" title="{{title}}" class="channel list-group-item">
 					<div class="media-left">
-						<img src="{{thumbnail}}" alt="{{title}}"  class="">
+						<img src="{{thumbnail}}" alt="{{title}}"	class="">
 					</div>
 					<div class="media-body">
 						<h4 class="list-group-item-heading">{{title}} <span class="badge">{{../count}}</span></h4>

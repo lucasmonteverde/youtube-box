@@ -1,14 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8">
-	<meta name="author" content="Lucas Monteverde">
-	<meta name="description" content="">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta charset="utf-8" />
+	<meta name="author" content="Lucas Monteverde" />
+	<meta name="description" content="Youtube Box - A new way to visualize your Subscriptions" />
+	<meta name="keywords" content="Youtube, Youtube box, subscription, V3 API, V2 API, RSS Feed" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	
+	<meta name="mobile-web-app-capable" content="yes" />
+	<meta name="application-name" content="Youtube Box" />
+	<link rel="icon" sizes="192x192" href="img/icon.png" />
+		
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<meta name="apple-mobile-web-app-title" content="Web Starter Kit" />
+	<link rel="apple-touch-icon" href="img/icon.png" />
+		
+	<link rel="shortcut icon" href="/favicon.ico" />
 	<title>{{title}}</title>
 
 	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
-	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+	<!--link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css"-->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.4/simplex/bootstrap.min.css" >
 	<link rel="stylesheet" href="/css/style.css" />
 
 	<!--[if lt IE 9]>
@@ -31,14 +44,25 @@
 				</div>
 				<div id="navbar" class="navbar-collapse collapse">
 					<ul class="nav navbar-nav navbar-right">
-						<li class="{{active "/" ../path true}}"><a href="/">Dashboard</a></li>
+						<li class="{{active "/" ../path true}}"><a href="/">Videos</a></li>
 						<li><a href="/feed/{{youtube.id}}" target="_blank">Feed</a></li>
 						<li><a href="/sync/subscriptions" target="_blank">Sync Subscriptions</a></li>
-						<li><a href="#">Profile</a></li>
-						{{#if admin}}
-							<li class="{{active "/admin" ../../path false}}"><a href="/admin">Admin</a></li>
-						{{/if}}
-						<li><a href="/auth/logout">Logout</a></li>
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+								{{name}} <b class="caret"></b>
+							</a>
+							<ul class="dropdown-menu">
+								<li><a href="/auth/profile" title="Profile"><i class="glyphicon glyphicon-user"></i> Profile</a></li>
+								<li><a href="#" title="Settings"><i class="glyphicon glyphicon-cog"></i> Settings</a></li>
+								{{#if admin}}
+									<li class="{{active "/admin" ../../path false}}">
+										<a href="/admin" title="Dashboard"><i class="glyphicon glyphicon-stats"></i> Dashboard</a>
+									</li>
+								{{/if}}
+								<li class="divider"></li>
+								<li><a href="/auth/logout" title="Logout"><i class="glyphicon glyphicon-off"></i> Logout</a></li>
+							</ul>
+						</li>
 					</ul>
 				</div>
 			</div>
@@ -54,5 +78,8 @@
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 	<script src="/js/app.min.js"></script>
+		
+	{{>analytics}}
+	
 </body>
 </html>

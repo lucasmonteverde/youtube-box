@@ -15,7 +15,7 @@ var paths = {
 	dest: {
 		scripts : 'dist/js',
 		styles: 'dist/css',
-		images: 'dist/images',
+		images: 'dist/img',
 		extras: 'dist'
 	}
 };
@@ -45,7 +45,7 @@ gulp.task('styles', function () {
 		.pipe($.newer({dest: paths.dest.styles + 'style.css', ext: '.css'}))
 		.pipe($.sass({
 			outputStyle: 'compressed'
-		}))
+		}).on('error', $.sass.logError))
 		.pipe($.autoprefixer('last 2 version'))
 		//.pipe($.csso())
 		.pipe(gulp.dest(paths.dest.styles));

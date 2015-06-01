@@ -1,4 +1,5 @@
 var router = require('express').Router(),
+	Promise = require('bluebird'),
 	Feed = require('feed'),
 	User = require('../models/user'),
 	Subscription = require('../models/subscription'),
@@ -12,22 +13,24 @@ router.get('/:user', function(req, res, next) {
 		next(new Error('user not defined'));
 	}
 	
-	/*if( req.user ) {
-		query = Subscription.findOne({user:req.user._id}).populate('user');
-	}*/
+	var query;
 	
-	User
-		.findOne({'youtube.id': req.params.user})
+	if( ! req.user ){
+		query = User.findOne({'youtube.id': req.params.user});
+	}else{
+		query = Promise.resolve(req.user);
+	}
+	
+	query
 		.then(function(item){
 			user = item;
 			
-			return Subscription
-						.findOne({user:user._id});
+			return Subscription.findOne({user:user._id}).select('channels');
 						
 		}).then(function(subscription){
 			
 			feed = new Feed({
-				title: 'New Subscription Videos for userId: ' + user.youtube.id,
+				title: 'New Subscription Videos for user: ' + user.name,
 				description: 'Youtube subscriptions feed',
 				link: req.protocol + '://' + req.hostname + req.originalUrl,
 				//image: '',
@@ -65,6 +68,10 @@ router.get('/:user', function(req, res, next) {
 			
 			res.send(feed.render());
 			
+		}).catch(function(e){
+			console.error('feed error', e.error);
+			
+			next(e);
 		});
 });
 

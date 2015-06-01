@@ -23,7 +23,9 @@ router.get('/', function(req, res) {
 		//res.render('videos', data);
 	
 	}else{
-		res.render('login', data);
+		data.layout = 'landing';
+		
+		res.render('index', data);
 	}
 	
 });

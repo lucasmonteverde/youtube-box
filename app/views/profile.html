@@ -1,0 +1,37 @@
+<div class="row">
+	<div class="col-md-offset-2 col-md-8">
+ 		<div class="well profile clearfix">
+			{{#with user}}
+				<div class="col-sm-12 info">
+					<div class="col-xs-12 col-sm-8">
+						<h2>{{name}}</h2>
+						<br />
+						<p><strong>Email: </strong> {{email}} </p>
+						<p><strong>Youtube ID: </strong> {{youtube.id}} </p>
+						<p><strong>Youtube Page: </strong> <a href="http://www.youtube.com/channel/{{youtube.id}}" target="_blank">Link</a></p>
+					</div>
+					<div class="col-sm-4 text-center">
+						<figure>
+							<img src="{{avatar}}" alt="" class="img-circle img-responsive">
+						</figure>
+					</div>
+					<br /><br />
+				</div>
+				<div class="col-xs-12 divider text-center">
+					<div class="col-xs-12 col-sm-4 emphasis">
+						<h2><strong> {{../channels}} </strong></h2>
+						<p><small>Channels</small></p>
+					</div>
+					<div class="col-xs-12 col-sm-4 emphasis">
+						<h2><strong>{{../watched}}</strong></h2>
+						<p><small>Watched</small></p>
+					</div>
+					<div class="col-xs-12 col-sm-4 emphasis">
+						<h2><strong>{{../videos}}</strong></h2>
+						<p><small>Vídeos</small></p>
+					</div>
+				</div>
+			{{/with}}
+		</div>
+	</div>
+</div>

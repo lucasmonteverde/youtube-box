@@ -1,0 +1,14 @@
+// Variables
+$brand-primary: #a91b0c;
+$gray-darkest: #222;
+
+// Font Selections
+@mixin default-font() {
+	font-family: "Lato", "Helvetica Neue", Arial;
+	font-weight: 400;
+}
+
+@mixin heading-font() {
+	font-family: "Lato", "Helvetica Neue", Arial;
+	font-weight: 700;
+}

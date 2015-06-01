@@ -35,7 +35,6 @@ var youtube = new YoutubeStrategy({
 	console.log('profile', profile);
 	//console.log('accessToken', accessToken);
 	//console.log('refreshToken', refreshToken);
-		
 	User
 		.findOne({ 'youtube.id': profile.id })
 		.then(function(user) {
@@ -47,6 +46,12 @@ var youtube = new YoutubeStrategy({
 						id: profile.id || profile._json.id
 					}
 				});
+			}
+			
+			try{
+				user.avatar = profile._json && profile._json.items[0].snippet.thumbnails.medium.url;
+			}catch(err){
+				console.error('thumbnail not found');
 			}
 			
 			if( adminUsers.indexOf(user.youtube.id) > -1 ) {
