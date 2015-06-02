@@ -17,6 +17,7 @@ var UserSchema = new Schema({
 		type: Boolean,
 		default: true
 	},
+	lastLogin: Date,
 	avatar: String,
 	admin: Boolean,
 	sync: Boolean,

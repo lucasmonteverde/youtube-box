@@ -4,11 +4,17 @@ require('dotenv').load();
 
 var db = require('./app/config/db'),
 	passport = require('./app/config/passport'),
-	User = require('./app/models/user'),
 	Sync = require('./app/jobs/sync');
 	
-User.find().then(function(users){
-	return users;
-}).each(function(user){
-	Sync.subscriptions(user);
-});
+
+/*Sync.userSubscriptions()
+	.then( Sync.channels )
+	.then(function(){
+		console.log('sync user done');
+		
+		//process.exit(0);
+	});*/
+
+Sync.userSubscriptions();
+
+//Sync.channels();

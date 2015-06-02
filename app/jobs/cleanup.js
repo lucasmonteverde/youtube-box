@@ -9,12 +9,11 @@ var Promise = require('bluebird'),
 var removeOldVideos = exports.removeOldVideos = function(){
 	
 	return Video.remove({
-		published: { $lte: moment().subtract(1, 'month').toDate() }
-	}).then(function(videos){
+		published: { $lte: moment.utc().subtract(1, 'month').toDate() }
+	}, function(err, result){
+		if( err ) console.erro(err);
 		
-		console.log(videos.length);
-		
-		return videos;
+		console.log('result', result);
 	});
 	
 };

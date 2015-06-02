@@ -15,12 +15,12 @@ passport.deserializeUser(function(user, done) {
 	done(null, user);
 });
 
-YoutubeStrategy.prototype.authorizationParams = function(options) {
+/*YoutubeStrategy.prototype.authorizationParams = function(options) {
 	return {
 		access_type : 'offline'
 		//approval_prompt: 'force'
 	};
-};
+};*/
 
 var youtube = new YoutubeStrategy({
 	clientID: process.env.YOUTUBE_CLIENT_ID,
@@ -33,6 +33,10 @@ var youtube = new YoutubeStrategy({
 	]
 }, function(accessToken, refreshToken, profile, done) {
 	console.log('profile', profile);
+	
+	if( refreshToken ) {
+		console.info( 'refreshToken', refreshToken );
+	}
 	//console.log('accessToken', accessToken);
 	//console.log('refreshToken', refreshToken);
 	User

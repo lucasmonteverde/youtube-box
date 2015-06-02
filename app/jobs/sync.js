@@ -12,8 +12,12 @@ Promise.promisifyAll(refresh);
 
 var refreshAccessToken = exports.refreshAccessToken = function(user, nextPageToken){
 	
-	if( user.youtube.accessTokenUpdate > moment().subtract(55, 'minutes') ) {
+	if( moment.utc().subtract(55, 'minutes').isBefore( user.youtube.accessTokenUpdate ) ) {
 		return Promise.resolve(user);
+	}
+	
+	if( ! user.youtube.refreshToken ) {
+		return Promise.reject(new Error('refreshToken is not defined') );
 	}
 	
 	return refresh
@@ -21,90 +25,102 @@ var refreshAccessToken = exports.refreshAccessToken = function(user, nextPageTok
 		.then(function(result){
 			console.log( 'accessToken', result[0] );
 			
-			/*user.youtube.accessToken = result[0];
-			user.youtube.accessTokenUpdate = new Date();
-			
-			user.markModified('youtube');
-			
-			user.save();*/
-			
-			User.findByIdAndUpdate(user._id, {
+			return User.findByIdAndUpdate(user._id, {
 				'youtube.accessToken': result[0],
-				'youtube.accessTokenUpdate': new Date()
-			}, function(err){
-				if( err ) console.error(err);
+				'youtube.accessTokenUpdate': new Date().toISOString()
 			});
-	
-			return user;
 		})
 		.catch(function(err) {
 			console.error(err);
+		});
+};
+
+exports.userSubscriptions = function(){
+	
+	return User.find('_id youtube').lean()
+		.then(function(users){
+			return users;
+		})
+		.each(function(user){
 			
-			return user;
+			return refreshAccessToken(user)
+				.then(function(user){
+					return subscriptions(user);
+				}).catch(function(err) {
+					console.error(err);
+				});
+				
+		})
+		.catch(function(err) {
+			console.error(err);
 		});
 };
 
 var subscriptions = exports.subscriptions = function(user, nextPageToken){
 	
-	refreshAccessToken(user)
-		.then(function(user){
-			return api('subscriptions', {
-				mine: true,
-				//channelId: channelId,
-				part: 'snippet',
-				fields: 'nextPageToken,items(snippet)',
-				pageToken: nextPageToken
-			}, subscriptions, user);
-		})
-		.each(function(item){
-				
-			//console.log('each', item);
+	return api('subscriptions', {
+		mine: true,
+		part: 'snippet',
+		fields: 'nextPageToken,items(snippet)',
+		pageToken: nextPageToken
+	}, subscriptions, user)
+	.each(function(item){
 			
-			Channel.findByIdAndUpdate(item.snippet.resourceId.channelId, {
-				title: item.snippet.title,
-				description: item.snippet.description,
-				thumbnail: item.snippet.thumbnails.default.url
-			}, { upsert: true }, function(err, channel){
-				if (err) console.error( err );
+		return Channel.findByIdAndUpdate(item.snippet.resourceId.channelId, {
+			title: item.snippet.title,
+			description: item.snippet.description,
+			thumbnail: item.snippet.thumbnails.default.url
+		}, { upsert: true });
+		
+	})
+	.then(function(items){
+		
+		if( items && items.length ){
+			var channelsId = items.map(function(item){
+				return item.snippet.resourceId.channelId;
 			});
 			
-			activities(item.snippet.resourceId.channelId);
-			
+			Subscription.findOneAndUpdate({'user': user._id}, nextPageToken ? {
+				$addToSet: { channels: { $each: channelsId } }
+			} : {
+				channels: channelsId
+			}, { upsert: true }, function(err){
+				if(err) console.error( err );
+			});
+		}
+		
+		console.log('channels', items && items.length);
+		
+	})
+	.catch(function(err) {
+		console.error(err);
+	});
+	
+};
+
+exports.channels = function(){
+	
+	return Channel.find().select('_id updatedDate').lean()
+		.then(function(channels){
+			return channels;
 		})
-		.then(function(items){
-			
-			if( items && items.length ){
-				var channelsId = items.map(function(item){
-					return item.snippet.resourceId.channelId;
-				});
-				
-				Subscription.findOneAndUpdate({'user': user._id}, nextPageToken ? {
-					$addToSet: { channels: { $each: channelsId } }
-				} : {
-					channels: channelsId
-				}, { upsert: true }, function(err){
-					if(err) console.error( err );
-				});
-			}
-			
-			console.log('items', items && items.length);
-			
+		.each(function(channel){
+			activities(channel);
 		})
 		.catch(function(err) {
 			console.error(err);
 		});
-	
 };
 
-var activities = exports.activities = function(channelId, nextPageToken){
+var activities = exports.activities = function(channel, nextPageToken){
 	
-	api('activities', {
-		channelId: channelId,
+	return api('activities', {
+		channelId: channel._id,
 		part: 'snippet,contentDetails',
 		fields: 'nextPageToken,items(snippet,contentDetails)',
-		publishedAfter: moment().subtract(1, 'month').toDate(),
+		publishedAfter: channel.updatedDate || moment.utc().subtract(1, 'month').toDate(),
 		pageToken: nextPageToken
-	}, activities, channelId)
+	}, activities, channel)
 	.filter(function(item){
 		return item.snippet.type === 'upload';
 	})
@@ -122,8 +138,14 @@ var activities = exports.activities = function(channelId, nextPageToken){
 	})
 	.then(function(items){
 		
+		Channel.findByIdAndUpdate(channel._id, {
+			updatedDate: Date.now()
+		}, function(err){
+			if (err) console.error( err );
+		});
+			
 		if( items && items.length ){
-			console.log('items', items[0].snippet.channelTitle, items.length);
+			console.log('activities', items[0].snippet.channelTitle, items.length);
 			
 			videos(items.map(function(item){
 				return item.contentDetails.upload.videoId;
@@ -153,8 +175,8 @@ var videos = exports.videos = function(videoId, nextPageToken){
 			"definition": "hd",
 			"caption": "false",
 			"licensedContent": true
-		   },
-		   "statistics": {
+		},
+		"statistics": {
 			"viewCount": "75196",
 			"likeCount": "1837",
 			"dislikeCount": "59",
@@ -165,7 +187,7 @@ var videos = exports.videos = function(videoId, nextPageToken){
 		var result, duration = 0;
 		
 		if( (result = durationExp.exec(item.contentDetails.duration) ) ) {
-			duration = ((parseInt(result[1] || 0,10) * 60) + parseInt(result[2] || 0,10) ) * 60 + parseInt(result[3] || 0,10);
+			duration = ((parseInt(result[1] || 0, 10) * 60) + parseInt(result[2] || 0, 10) ) * 60 + parseInt(result[3] || 0, 10);
 		}
 		
 		Video.findByIdAndUpdate(item.id, {
@@ -182,11 +204,6 @@ var videos = exports.videos = function(videoId, nextPageToken){
 	.catch(function(err) {
 		console.error(err);
 	});
-	/* .then(function(items){
-		
-		console.log('items', items && items.length);
-		
-	}); */
 };
 
 var api = function(method, filter, callback, callbackArgs){
@@ -214,8 +231,6 @@ var api = function(method, filter, callback, callbackArgs){
 	return request(params).then(function(data){
 		//console.timeEnd('request');
 		
-		//console.log('data', data);
-		
 		if( data.nextPageToken && callback ) {
 			//console.log('callback', method, filter);
 			callback(callbackArgs, data.nextPageToken);
@@ -230,7 +245,7 @@ var api = function(method, filter, callback, callbackArgs){
 	});
 };
 
-var getUserEmail = exports.getUserEmail = function(user){
+exports.getUserEmail = function(user){
 	request({
 		url: 'https://www.googleapis.com/plus/v1/people/me',
 		json: true,

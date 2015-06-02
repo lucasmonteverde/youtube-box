@@ -5,7 +5,8 @@ var ChannelSchema = new Schema({
 	_id: String,
 	title: String,
 	description: String,
-	thumbnail: String
+	thumbnail: String,
+	updatedDate: Date,
 	/* videos: [{
 		type: String,
 		ref: 'Video'

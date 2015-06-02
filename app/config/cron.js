@@ -4,10 +4,10 @@ var CronJob = require('cron').CronJob,
 	
 new CronJob('00 00 * * * *', function() {
 	
-	User.find().then(function(users){
-		return users;
-	}).each(function(user){
-		Sync.subscriptions(user);
-	});
+	Sync.userSubscriptions()
+		.then( Sync.channels )
+		.then(function(){
+			console.log('sync user done');
+		});
 	
 }, null, true);
