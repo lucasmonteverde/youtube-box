@@ -8,7 +8,6 @@ exports.isAdmin = function(req, res, next) {
 	return req.isAuthenticated() && req.user.admin ? next() : res.redirect('/');
 };
 
-
 exports.formatHTML = function(text) {
 	return text && text
 		.replace(/(\r\n|\n|\r)/gm, '<br />')

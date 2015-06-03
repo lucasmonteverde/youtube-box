@@ -1,7 +1,7 @@
 {
   "name": "youtube-box",
   "description": "A Youtube Subscriptions Box",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "author": "Lucas Monteverde",
   "license": "MIT",
   "main": "server.js",
@@ -39,7 +39,7 @@
     "browser-sync": "^2.7.6",
     "del": "^1.2.0",
     "dotenv": "^1.1.0",
-    "gulp": "^3.8.11",
+    "gulp": "^3.9.0",
     "gulp-autoprefixer": "^2.3.0",
     "gulp-imagemin": "^2.2.1",
     "gulp-jshint": "^1.11.0",

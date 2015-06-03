@@ -6,15 +6,17 @@ var db = require('./app/config/db'),
 	passport = require('./app/config/passport'),
 	Sync = require('./app/jobs/sync');
 	
-
-/*Sync.userSubscriptions()
+Sync.userSubscriptions()
+	.then( function(){
+		console.log('sync user done');	
+	})
 	.then( Sync.channels )
 	.then(function(){
-		console.log('sync user done');
-		
-		//process.exit(0);
-	});*/
+		console.log('sync channels done');
+	});
 
-Sync.userSubscriptions();
+//Sync.userSubscriptions();
 
 //Sync.channels();
+
+//process.exit(0);

@@ -28,7 +28,7 @@ var refreshAccessToken = exports.refreshAccessToken = function(user, nextPageTok
 			return User.findByIdAndUpdate(user._id, {
 				'youtube.accessToken': result[0],
 				'youtube.accessTokenUpdate': new Date().toISOString()
-			});
+			}, { 'new' : true });
 		})
 		.catch(function(err) {
 			console.error(err);
@@ -46,7 +46,8 @@ exports.userSubscriptions = function(){
 			return refreshAccessToken(user)
 				.then(function(user){
 					return subscriptions(user);
-				}).catch(function(err) {
+				})
+				.catch(function(err) {
 					console.error(err);
 				});
 				
