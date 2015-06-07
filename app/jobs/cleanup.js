@@ -1,19 +1,39 @@
 var Promise = require('bluebird'),
 	moment = require('moment'),
+	_ = require('lodash'),
 	User = require('../models/user'),
 	Subscription = require('../models/subscription'),
 	Channel = require('../models/channel'),
 	Video = require('../models/video');
 	
 	
-var removeOldVideos = exports.removeOldVideos = function(){
+exports.removeOldVideos = function(){
 	
 	return Video.remove({
 		published: { $lte: moment.utc().subtract(1, 'month').toDate() }
-	}, function(err, result){
-		if( err ) console.erro(err);
+	});
+	
+};
+
+exports.migrationWatched = function(user){
+	
+	return Subscription.findOne({
+		user: user
+	}).then(function(sub){
 		
-		console.log('result', result);
+		console.log(sub);
+		
+		if( sub ) {
+			sub.watched.forEach(function(video){
+				sub.watches.push({ video : video, date: Date.now() });
+				
+				sub.unwatched.pull(video);
+			});
+			
+			sub.watches = _.uniq(sub.watches, 'video');
+		}
+		
+		return sub.save();
 	});
 	
 };

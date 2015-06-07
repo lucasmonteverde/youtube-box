@@ -6,17 +6,27 @@ var db = require('./app/config/db'),
 	passport = require('./app/config/passport'),
 	Sync = require('./app/jobs/sync');
 	
-Sync.userSubscriptions()
+//name = process.argv.slice(2);
+	
+/*Sync.updateSubscriptions()
 	.then( function(){
-		console.log('sync user done');	
+		console.log('sync user done');
 	})
-	.then( Sync.channels )
+	.then( Sync.updateChannels )
 	.then(function(){
 		console.log('sync channels done');
+	})
+	.then( Sync.updateVideos )
+	.then(function(){
+		console.log('sync videos done');
 	});
+	*/
+	
+//Sync.updateSubscriptions();
 
-//Sync.userSubscriptions();
+Sync.updateChannels();
 
-//Sync.channels();
+//Sync.updateVideos();
+
 
 //process.exit(0);

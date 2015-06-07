@@ -33,16 +33,16 @@
 </div>
 
 <div class="row">
-	{{#videos}}
-		<div class="col-sm-6 col-md-4 col-lg-3 video" data-id="{{id}}">
+	{{#each videos}}
+		<div class="col-sm-6 col-md-4 col-lg-3 video" data-id="{{_id}}">
 			<div class="thumbnail">
-				<a href="https://www.youtube.com/channel/{{channel.id}}" title="{{channel.title}}" class="channel">
+				<a href="https://www.youtube.com/channel/{{channel._id}}" title="{{channel.title}}" class="channel">
 					<img src="{{channel.thumbnail}}" alt="{{channel.title}}" />
 					<span>{{channel.title}}</span>
 				</a>
 					
-				<a href="{{youtubeVideo id}}" title="{{title}}" class="thumb">
-					<img src="https://i.ytimg.com/vi/{{id}}/mqdefault.jpg" alt="{{title}}" />
+				<a href="{{youtubeVideo _id}}" title="{{title}}" class="thumb">
+					<img src="https://i.ytimg.com/vi/{{_id}}/mqdefault.jpg" alt="{{title}}" />
 					<figcaption>{{formatTime duration}}</figcaption>
 				</a>
 				
@@ -55,7 +55,7 @@
 				{{/if}}
 					
 				<div class="caption">
-					<h3><a href="{{youtubeVideo id}}" title="{{title}}">{{title }}</a></h3>
+					<h3><a href="{{youtubeVideo _id}}" title="{{title}}">{{title }}</a></h3>
 					
 					<div class="info clearfix">
 						<p class="pull-left"><strong>Published:</strong> {{formatDate published}}</p>
@@ -64,7 +64,7 @@
 					
 					<p class="description">{{{formatHTML description}}}</p>
 					<p>
-						<a href="{{youtubeVideo id}}" class="btn btn-primary" role="button" target="_blank">Watch</a>
+						<a href="{{youtubeVideo _id}}" class="btn btn-primary" role="button" target="_blank">Watch</a>
 						<button class="btn btn-default watched" role="button">mark as watched</button>
 					</p>
 				</div>
@@ -79,5 +79,5 @@
 				<p>Please wait a moment...</p>
 			{{/unless}}
 		</div>
-	{{/videos}}
+	{{/each}}
 </div>

@@ -6,11 +6,7 @@ var ChannelSchema = new Schema({
 	title: String,
 	description: String,
 	thumbnail: String,
-	updatedDate: Date,
-	/* videos: [{
-		type: String,
-		ref: 'Video'
-	}] */
+	updatedDate: Date
 }, {collection: 'youtube-channels', _id: false, versionKey: false});
 
 module.exports = mongoose.model('Channel', ChannelSchema);

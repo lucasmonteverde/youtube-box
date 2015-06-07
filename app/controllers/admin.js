@@ -45,15 +45,21 @@ router.get('/', function(req, res, next) {
 
 router.get('/cleanup/videos', function(req, res, next){
 	
-	
-	Cleanup.removeOldVideos();/*.then(function(){
+	Cleanup.removeOldVideos().then(function(){
 		
 		res.json('done');
 		
-	});*/
+	});
 	
+});
+
+router.get('/cleanup/watched', function(req, res, next){
 	
-	res.json('done');
+	Cleanup.migrationWatched(req.user._id).then(function(){
+		
+		res.json('done');
+		
+	});
 	
 });
 

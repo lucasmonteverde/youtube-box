@@ -7,9 +7,10 @@ var express = require('express'),
 	cookieParser = require('cookie-parser'),
 	bodyParser = require('body-parser'),
 	compression = require('compression'),
+	helmet = require('helmet'),
+	hbs = require('express-handlebars'),
 	session = require('express-session'),
 	RedisStore = require('connect-redis')(session),
-	hbs = require('express-handlebars'),
 	db = require('./app/config/db'),
 	cache = require('./app/config/cache'),
 	passport = require('./app/config/passport'),
@@ -27,9 +28,9 @@ app.engine('html', hbs({
 
 app.set('views', 'app/views');
 app.set('view engine', 'html');
-app.set('x-powered-by', false);
 
 app.use(logger('dev'));
+app.use(helmet());
 app.use(compression());
 app.use(express.static('dist'));
 
@@ -42,7 +43,7 @@ app.use(session({
 	store: new RedisStore({client: cache}),
 	resave: false,
 	saveUninitialized: false,
-	cookie: { maxAge: 2592000000 } //30 days
+	cookie: { maxAge: 2592000000, httpOnly: true } //30 days
 }));
 
 app.use(passport.initialize());

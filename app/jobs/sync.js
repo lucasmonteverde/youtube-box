@@ -2,6 +2,7 @@ var request = require('request-promise'),
 	Promise = require('bluebird'),
 	moment = require('moment'),
 	refresh = require('passport-oauth2-refresh'),
+	_ = require('lodash'),
 	User = require('../models/user'),
 	Subscription = require('../models/subscription'),
 	Channel = require('../models/channel'),
@@ -35,9 +36,9 @@ var refreshAccessToken = exports.refreshAccessToken = function(user, nextPageTok
 		});
 };
 
-exports.userSubscriptions = function(){
+exports.updateSubscriptions = function(){
 	
-	return User.find('_id youtube').lean()
+	return User.find().select('_id youtube').lean()
 		.then(function(users){
 			return users;
 		})
@@ -99,14 +100,14 @@ var subscriptions = exports.subscriptions = function(user, nextPageToken){
 	
 };
 
-exports.channels = function(){
+exports.updateChannels = function(){
 	
 	return Channel.find().select('_id updatedDate').lean()
 		.then(function(channels){
 			return channels;
 		})
 		.each(function(channel){
-			activities(channel);
+			return activities(channel);
 		})
 		.catch(function(err) {
 			console.error(err);
@@ -145,13 +146,46 @@ var activities = exports.activities = function(channel, nextPageToken){
 			if (err) console.error( err );
 		});
 			
-		if( items && items.length ){
+		if( items && items.length ) {
 			console.log('activities', items[0].snippet.channelTitle, items.length);
 			
-			videos(items.map(function(item){
+			var videosId = items.map(function(item){
 				return item.contentDetails.upload.videoId;
-			}).join(','));
+			});
+			
+			Subscription.findOneAndUpdate({
+				channels: channel._id
+			}, {
+				$addToSet: { unwatched: { $each: videosId } }
+			}, function(err, subs){
+				if (err) console.error( err );
+				
+				if( subs instanceof Array ){
+					console.log('subs', subs && subs.length);
+				}
+			});
+			
+			videos(videosId.join(','));
 		}
+	})
+	.catch(function(err) {
+		console.error(err);
+	});
+};
+
+exports.updateVideos = function(){
+	
+	return Video.find({
+		published: {$gte: moment.utc().subtract(1,'month').toDate() }
+	}).select('_id').lean()
+	.then(function(videos){
+
+		return _.chain(videos).map(function(item){
+			return item._id;
+		}).chunk(50).value();
+	})
+	.each(function(ids){
+		videos(ids.join(','));
 	})
 	.catch(function(err) {
 		console.error(err);
@@ -162,7 +196,7 @@ var videos = exports.videos = function(videoId, nextPageToken){
 	
 	var durationExp = /(?:(\d+)H)?(?:(\d+)M)?(\d+)S/;
 	
-	api('videos', {
+	return api('videos', {
 		id: videoId,
 		part: 'contentDetails,statistics',
 		fields: 'nextPageToken,items(id,contentDetails,statistics)',
@@ -207,7 +241,7 @@ var videos = exports.videos = function(videoId, nextPageToken){
 	});
 };
 
-var api = function(method, filter, callback, callbackArgs){
+var api = function(method, filter, callback, callbackArgs) {
 	
 	//console.time('request');
 	
@@ -254,14 +288,16 @@ exports.getUserEmail = function(user){
 		auth:{
 			bearer: user.youtube.accessToken
 		}
-	}).then(function(result){
+	})
+	.then(function(result){
 		
 		if(result && result.emails){
 			user.email = result.emails[0].value;
 			
 			user.save();
 		}
-	}).catch(function(e){
+	})
+	.catch(function(e){
 		console.error('request', e.error);
 	});
 };

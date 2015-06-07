@@ -10,10 +10,24 @@ var SubscriptionSchema = new Schema({
 		type: String,
 		ref: 'Channel'
 	}],
-	watched: [{
+	unwatched: [{
 		type: String,
 		ref: 'Video'
+	}],
+	watched: [{
+		_id: false,
+		select: false,
+		date: Date,
+		video: {
+			type: String,
+			ref: 'Video',
+			//unique: true
+		}
 	}]
+	/*watched: [{
+		type: String,
+		ref: 'Video'
+	}]*/
 }, {collection: 'youtube-subscriptions'});
 
 module.exports = mongoose.model('Subscription', SubscriptionSchema);

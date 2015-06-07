@@ -10,13 +10,13 @@ router.get('/:user', function(req, res, next) {
 	var feed, user;
 	
 	if( ! req.params.user ) {
-		next(new Error('user not defined'));
+		next(new Error('User not defined'));
 	}
 	
 	var query;
 	
 	if( ! req.user ){
-		query = User.findOne({'youtube.id': req.params.user});
+		query = User.findOne({'youtube.id': req.params.user}).lean();
 	}else{
 		query = Promise.resolve(req.user);
 	}
@@ -25,7 +25,7 @@ router.get('/:user', function(req, res, next) {
 		.then(function(item){
 			user = item;
 			
-			return Subscription.findOne({user:user._id}).select('channels');
+			return Subscription.findOne({user:user._id}).select('channels').lean();
 						
 		}).then(function(subscription){
 			

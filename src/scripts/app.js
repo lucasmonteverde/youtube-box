@@ -121,9 +121,11 @@ $(document).ready(function(){
 			})
 			.done(function(res){
 				
-				$box.fadeOut(function(){
-					$box.remove();
-				});
+				if( res && res.status ) {
+					$box.fadeOut(function(){
+						$box.remove();
+					});
+				}
 				
 				console.log(res);
 			})
