@@ -69,8 +69,8 @@ gulp.task('extras', function () {
 		.pipe(gulp.dest(paths.dest.extras));
 });
 
-gulp.task('clean', function (cb) {
-	del(paths.dest.extras, cb);
+gulp.task('clean', function () {
+	del([paths.dest.extras]);
 });
 
 gulp.task('serve', ['watch'], function () {
@@ -89,7 +89,8 @@ gulp.task('express', function () {
 	return $.nodemon({ 
 				script: 'server.js', 
 				ext: 'js', 
-				ignore: ['src/**', 'dist/**', 'node_modules/**']
+				ignore: ['src/**', 'dist/**', 'node_modules/**'],
+				tasks: ['lint']
 			})
 			.on('change', ['lint'])
 			.on('restart', function () {

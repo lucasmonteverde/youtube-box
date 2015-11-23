@@ -7,6 +7,10 @@ mongoose.connect(dbURI);
 
 mongoose.set('debug', process.env.NODE_ENV !== 'production');
 
+require('mongoose/node_modules/mpromise').prototype.catch = function(onReject) {
+	return this.then(undefined, onReject);
+};
+
 mongoose.connection
 	.on('connected', function () {
 		console.info('Mongoose default connection open to:', dbURI);
