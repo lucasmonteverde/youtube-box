@@ -75,10 +75,11 @@ var videos = function(req, res, data) {
 			
 			return query.lean();
 		})
-		.each(function(video) {
-			video.channel = _.find(data.channels, { _id: video.channel });
-		})
 		.then(function(videos) {
+			
+			_.each(videos, function(video) {
+				video.channel = _.find(data.channels, { _id: video.channel });
+			});
 			
 			//req.app.emit('sync', 'query done');
 			
