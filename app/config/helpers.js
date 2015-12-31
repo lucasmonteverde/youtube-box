@@ -75,6 +75,11 @@ exports.selected = function(value, elem) {
 	return value === elem ? 'selected' : '';
 };
 
+exports.checked = function(value, elem) {
+	console.log('checked', value, elem);
+	return value === elem ? 'checked' : '';
+};
+
 exports.active = function(active, path, strict){
 	return (strict ? active === path : new RegExp(active).test(path)) ? 'active' : '';
 };

@@ -12,13 +12,35 @@ router.post('/watched', function(req, res, next) {
 		
 	var videosId = req.body.video.split(',');
 	
+	console.log( videosId );
+	
+	Subscription
+		.update( { user: req.user._id }, {
+			$addToSet: { watched: {
+				video : videosId[0],
+				date: Date.now()
+			} },
+			$pull: { unwatched: videosId[0] }
+		})
+		.then(function(){
+			
+			res.json({
+				status: true,
+				message: 'video watched saved!'
+			});
+			
+		})
+		.catch(function(e) {
+			return next(e);
+		});
+	
 	/*Subscription
 		.findOneAndUpdate({user:req.user._id}, {
 			$addToSet: { watched: { video : videosId, date: Date.now() } },
 			$pullAll: { unwatched: videosId }
 		},*/
 	
-	Subscription
+	/*Subscription
 		.findOne({user:req.user._id})
 		.select('watched unwatched')
 		.then(function(sub){
@@ -48,7 +70,7 @@ router.post('/watched', function(req, res, next) {
 		})
 		.catch(function(e) {
 			return next(e);
-		});
+		});*/
 		
 });
 	

@@ -94,10 +94,11 @@ gulp.task('express', function () {
 					NODE_ENV: 'development',
 					DEBUG: 'app:*'
 				},
-				tasks: ['lint']
+				//tasks: ['lint']
 			})
-			.on('change', ['lint'])
+			//.on('change', ['lint'])
 			.on('restart', function () {
+				gulp.start('lint');
 				console.log('restarted!');
 			});
 })

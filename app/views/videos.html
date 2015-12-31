@@ -6,6 +6,15 @@
 	
 	<form class="col-sm-9 text-right form-inline filter">
 		
+		<div class="checkbox">
+			
+			<label>
+				<input type="checkbox" name="all" value="1" {{checked "1" all}}/> Show older videos
+			</label>
+			
+			
+		</div>
+		
 		<select name="channel" class="form-control channel">
 			<option value="">Channels</option>
 			{{#each channels}}

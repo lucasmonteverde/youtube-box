@@ -58,10 +58,15 @@ var videos = function(req, res, data) {
 			data.channels = subscription.channels;
 				
 			var query = Video.find({
-						_id: {$in: subscription.unwatched},
-						published: {$gte: moment.utc().subtract(2,'month').toISOString()}
+						_id: {$in: subscription.unwatched}
 					});
 					
+			if( ! req.query.all ){
+				query.where('published').gte( moment.utc().subtract(2,'month').toISOString() );
+			} else {
+				data.all = req.query.all;
+			}
+			
 			if( req.query.search ) {
 				query.where('title', new RegExp(req.query.search, 'i'));
 				data.search = req.query.search;
