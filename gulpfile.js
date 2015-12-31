@@ -42,11 +42,11 @@ gulp.task('scripts', ['lint'], function () {
 gulp.task('styles', function () {
 	return gulp.src(paths.styles)
 		.pipe($.plumber())
-		.pipe($.newer({dest: paths.dest.styles + 'style.css', ext: '.css'}))
+		//.pipe($.newer({dest: paths.dest.styles + 'style.css', ext: '.css'}))
 		.pipe($.sass({
 			outputStyle: 'compressed'
 		}).on('error', $.sass.logError))
-		.pipe($.autoprefixer('last 2 version'))
+		.pipe($.autoprefixer())
 		//.pipe($.csso())
 		.pipe(gulp.dest(paths.dest.styles));
 });
@@ -55,11 +55,11 @@ gulp.task('images', function () {
 	return gulp.src(paths.images)
 		.pipe($.plumber())
 		.pipe($.newer(paths.dest.images))
-		/* .pipe($.imagemin({
+		.pipe($.imagemin({
 			optimizationLevel: 5,
 			progressive: true,
 			interlaced: true
-		})) */
+		}))
 		.pipe(gulp.dest(paths.dest.images));
 });
 
@@ -70,7 +70,7 @@ gulp.task('extras', function () {
 });
 
 gulp.task('clean', function () {
-	del([paths.dest.extras]);
+	return del([paths.dest.extras]);
 });
 
 gulp.task('serve', ['watch'], function () {
@@ -88,8 +88,12 @@ gulp.task('serve', ['watch'], function () {
 gulp.task('express', function () {
 	return $.nodemon({ 
 				script: 'server.js', 
-				ext: 'js', 
+				ext: 'html js', 
 				ignore: ['src/**', 'dist/**', 'node_modules/**'],
+				env: {
+					NODE_ENV: 'development',
+					DEBUG: 'app:*'
+				},
 				tasks: ['lint']
 			})
 			.on('change', ['lint'])
