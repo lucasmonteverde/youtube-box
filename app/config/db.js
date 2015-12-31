@@ -3,20 +3,21 @@
 var mongoose = require('mongoose'),
 	dbURI = process.env.MONGODB || process.env.MONGOHQ_URL;
 
+mongoose.Promise = require('bluebird');
+
 mongoose.connect(dbURI);
 
-mongoose.set('debug', process.env.NODE_ENV !== 'production');
+mongoose.set('debug', process.env.NODE_ENV === 'development');
 
-require('mongoose/node_modules/mpromise').prototype.catch = function(onReject) {
-	return this.then(undefined, onReject);
-};
 
 mongoose.connection
 	.on('connected', function () {
 		console.info('Mongoose default connection open to:', dbURI);
-	}).on('error',function (err) {
+	})
+	.on('error',function (err) {
 		console.error('Mongoose default connection error:', err);
-	}).on('disconnected', function () {
+	})
+	.on('disconnected', function () {
 		console.info('Mongoose default connection disconnected');
 	});
 

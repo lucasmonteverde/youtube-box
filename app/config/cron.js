@@ -1,8 +1,6 @@
 var CronJob = require('cron').CronJob,
 	Sync = require('../jobs/sync');
 	
-
-	
 new CronJob('00 00 * * * *', function() {
 	
 	if( process.env.ENV === 'dev' ) return;
