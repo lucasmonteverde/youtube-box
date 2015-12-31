@@ -13,28 +13,16 @@ router.all('*', helpers.isAdmin);
 
 router.get('/', function(req, res, next) {
 	
-	var data = [];
-	
-	return Promise.all([
-		User.count(),
-		Channel.count(),
-		Video.count(),
-		mostWatchedChannels(5),
-		mostWatchedVideos(5),
-		mostActiveUser(5)
-	])
-	.spread(function(users, channels, videos, mostWatchedChannels, mostWatchedVideos, mostActiveUser) {
-		data.users = users;
-		data.channels = channels;
-		data.videos = videos;
-		
-		data.mostWatched = {};
-		data.mostWatched.channels = mostWatchedChannels;
-		data.mostWatched.videos = mostWatchedVideos;
-		
-		data.mostActiveUser = mostActiveUser;
-
-		res.render('admin', data);
+	return Promise.props({
+		users: User.count(),
+		channels: Channel.count(),
+		videos: Video.count(),
+		mostWatchedChannels: mostWatchedChannels(5),
+		mostWatchedVideos: mostWatchedVideos(5),
+		mostActiveUser: mostActiveUser(5)
+	})
+	.then(function( result ) {
+		res.render('admin', result);
 	})
 	.catch(function(e) {
 		return next(e);

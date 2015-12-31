@@ -10,7 +10,7 @@ var Promise = require('bluebird'),
 exports.removeOldVideos = function(){
 	
 	return Video.remove({
-		published: { $lte: moment.utc().subtract(1, 'month').toDate() }
+		published: { $lte: moment.utc().subtract(1, 'month').toISOString() }
 	});
 	
 };
@@ -25,7 +25,10 @@ exports.migrationWatched = function(user){
 		
 		if( sub ) {
 			sub.watched.forEach(function(video){
-				sub.watches.push({ video : video, date: Date.now() });
+				sub.watches.push({
+					video : video,
+					date: Date.now()
+				});
 				
 				sub.unwatched.pull(video);
 			});

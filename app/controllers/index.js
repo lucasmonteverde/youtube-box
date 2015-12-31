@@ -36,7 +36,10 @@ var videos = function(req, res, data) {
 	
 	//TODO: Cookie options management
 	if( req.query.sort ) {
-		res.cookie('sort', data.sort, { maxAge: 2592000000, httpOnly: true });
+		res.cookie('sort', data.sort, { 
+			maxAge: 2592000000,
+			httpOnly: true
+		});
 	}
 	
 	Subscription
@@ -56,7 +59,7 @@ var videos = function(req, res, data) {
 				
 			var query = Video.find({
 						_id: {$in: subscription.unwatched},
-						published: {$gte: moment.utc().subtract(2,'month').toDate()}
+						published: {$gte: moment.utc().subtract(2,'month').toISOString()}
 					});
 					
 			if( req.query.search ) {

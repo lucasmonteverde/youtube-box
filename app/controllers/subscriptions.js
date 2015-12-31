@@ -19,12 +19,16 @@ router.post('/watched', function(req, res, next) {
 		},*/
 	
 	Subscription
-		.findOne({user:req.user._id}).select('watched unwatched').exec(function(err, sub){
-			if( err ) console.error(err);
+		.findOne({user:req.user._id})
+		.select('watched unwatched')
+		.then(function(sub){
 			
-			if( sub ){
+			if( sub ) {
 				videosId.forEach(function(video){
-					sub.watched.push({ video : video, date: Date.now() });
+					sub.watched.push({ 
+						video : video,
+						date: Date.now()
+					});
 					
 					sub.unwatched.pull(video);
 				});
@@ -40,6 +44,10 @@ router.post('/watched', function(req, res, next) {
 					});
 				});
 			}
+			
+		})
+		.catch(function(e) {
+			return next(e);
 		});
 		
 });

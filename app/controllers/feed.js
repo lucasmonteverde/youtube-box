@@ -1,5 +1,6 @@
 var router = require('express').Router(),
 	Promise = require('bluebird'),
+	_ = require('lodash'),
 	Feed = require('feed'),
 	User = require('../models/user'),
 	Subscription = require('../models/subscription'),
@@ -26,8 +27,8 @@ router.get('/:user', function(req, res, next) {
 			user = item;
 			
 			return Subscription.findOne({user:user._id}).select('channels').lean();
-						
-		}).then(function(subscription){
+		})
+		.then(function(subscription){
 			
 			feed = new Feed({
 				title: 'New Subscription Videos for user: ' + user.name,
@@ -47,7 +48,11 @@ router.get('/:user', function(req, res, next) {
 						.populate('channel')
 						.lean();
 						
-		}).each(function(video){
+		})
+		.then(function(videos){
+			return videos;
+		})
+		.each(function(video){
 			
 			feed.addItem({
 				title: video.title,
@@ -62,13 +67,15 @@ router.get('/:user', function(req, res, next) {
 				}]
 			});
 			
-		}).then(function(){
+		})
+		.then(function(){
 			
 			res.set('Content-Type', 'text/xml');
 			
 			res.send(feed.render());
 			
-		}).catch(function(e){
+		})
+		.catch(function(e){
 			console.error('feed error', e.error);
 			
 			next(e);

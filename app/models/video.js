@@ -1,7 +1,6 @@
-var mongoose	= require('mongoose'),
-	Schema		= mongoose.Schema;
+var mongoose	= require('mongoose');
 
-var VideoSchema = new Schema({
+var VideoSchema = new mongoose.Schema({
 	_id: String,
 	title: String,
 	description: String,
@@ -15,6 +14,10 @@ var VideoSchema = new Schema({
 		type: String,
 		ref: 'Channel'
 	}
-}, {collection: 'youtube-videos', _id: false, versionKey: false});
+}, {
+	collection: 'youtube-videos',
+	_id: false,
+	versionKey: false
+});
 
 module.exports = mongoose.model('Video', VideoSchema);

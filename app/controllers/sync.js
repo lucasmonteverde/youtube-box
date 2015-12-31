@@ -8,7 +8,14 @@ router.get('/subscriptions', function(req, res, next) {
 	
 	Sync.subscriptions(req.user);
 	
-	res.send('status done');
+	res.send('subscriptions done');
+});
+
+router.get('/channels', function(req, res, next) {
+	
+	Sync.updateChannels();
+	
+	res.send('channels done');
 });
 
 module.exports = router;
