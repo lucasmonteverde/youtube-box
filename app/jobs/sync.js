@@ -225,19 +225,22 @@ var videos = exports.videos = function(videoId, nextPageToken){
 			"commentCount": "61"
 		 } */
 		 
-		var result, duration = 0;
+		var result, data = {
+			duration: 0,
+			definition: item.contentDetails.definition
+		};
 		
 		if( (result = durationExp.exec(item.contentDetails.duration) ) ) {
-			duration = ((parseInt(result[1] || 0, 10) * 60) + parseInt(result[2] || 0, 10) ) * 60 + parseInt(result[3] || 0, 10);
+			data.duration = ((parseInt(result[1] || 0, 10) * 60) + parseInt(result[2] || 0, 10) ) * 60 + parseInt(result[3] || 0, 10);
 		}
 		
-		Video.findByIdAndUpdate(item.id, {
-			duration: duration,
-			views: item.statistics && item.statistics.viewCount,
-			likes: item.statistics && item.statistics.likeCount,
-			dislikes: item.statistics && item.statistics.dislikeCount,
-			definition: item.contentDetails.definition
-		}, { upsert: true }, function(err, video){
+		if( item.statistics ) {
+			data.views = item.statistics.viewCount || 0;
+			data.likes = item.statistics.likeCount || 0;
+			data.dislikes = item.statistics.dislikeCount || 0;
+		}
+		
+		Video.findByIdAndUpdate(item.id, data, { upsert: true }, function(err, video){
 			if (err) console.error( err );
 		});
 		
