@@ -28,7 +28,7 @@ var refreshAccessToken = exports.refreshAccessToken = function(user, nextPageTok
 			
 			return User.findByIdAndUpdate(user._id, {
 				'youtube.accessToken': result[0],
-				'youtube.accessTokenUpdate': moment.utc().toISOString()
+				'youtube.accessTokenUpdate': moment().toISOString()
 			}, { new : true });
 		})
 		.catch(function(err) {
@@ -126,7 +126,7 @@ var activities = exports.activities = function(channel, nextPageToken){
 		channelId: channel._id,
 		part: 'snippet,contentDetails',
 		fields: 'nextPageToken,items(snippet,contentDetails)',
-		publishedAfter: channel.updatedDate || moment.utc().subtract(1, 'month').toISOString(),
+		publishedAfter: channel.updatedDate || moment().subtract(1, 'month').toISOString(),
 		pageToken: nextPageToken
 	}, activities, channel)
 	.filter(function(item){
@@ -147,7 +147,7 @@ var activities = exports.activities = function(channel, nextPageToken){
 	.then(function(items){
 		
 		Channel.findByIdAndUpdate(channel._id, {
-			updatedDate: moment.utc().toISOString()
+			updatedDate: moment().toISOString()
 		}, function(err){
 			if (err) console.error( err );
 		});
@@ -182,7 +182,7 @@ var activities = exports.activities = function(channel, nextPageToken){
 exports.updateVideos = function(){
 	
 	return Video.find({
-		published: {$gte: moment.utc().subtract(1,'month').toISOString() }
+		published: {$gte: moment().subtract(1,'month').toISOString() }
 	}).select('_id').lean()
 	.then(function(videos){
 

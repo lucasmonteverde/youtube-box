@@ -8,8 +8,12 @@
 				<h6 class="text-success">Users</h6>
 			</div>
 			<div class="panel-footer">
-				<span> last user </span>
-				<strong>{{lastUsers}}</strong>
+				<span> last user: </span>
+				{{#each lastUsers}}
+					<strong>
+						<a href="/admin/profile/{{_id}}">{{name}}</a>
+					</strong>
+				{{/each}}
 			</div>
 		</div>
 	</div>
@@ -41,7 +45,7 @@
 	<div class="col-xs-12 col-md-3">
 		<h4>Top 5 Most Watched Channels</h4>
 		<div class="list-group">
-		{{#each mostWatched.channels}}
+		{{#each mostWatchedChannels}}
 			{{#with _id}}
 				<a href="https://www.youtube.com/channel/{{id}}" title="{{title}}" class="channel list-group-item">
 					<div class="media-left">
@@ -61,7 +65,7 @@
 	
 	<div class="col-xs-12 col-md-6 col-lg-4 col-lg-offset-1">
 		<h4>Top 5 Most Watched Videos</h4>
-		{{#each mostWatched.videos}}
+		{{#each mostWatchedVideos}}
 			{{#with _id}}
 				<div class="thumbnail">
 					<a href="https://www.youtube.com/channel/{{channel.id}}" title="{{channel.title}}" class="channel">
@@ -93,7 +97,7 @@
 	<div class="col-xs-12 col-md-3 col-lg-offset-1">
 		<h4>Top 5 Most Active Users</h4>
 		<div class="list-group">
-		{{#each mostActiveUser}}
+		{{#each mostActiveUsers}}
 			{{#with user}}
 				<div class="list-group-item">
 					<h4 class="list-group-item-heading">{{name}}</h4>

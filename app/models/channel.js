@@ -1,4 +1,4 @@
-var mongoose	= require('mongoose');
+var mongoose = require('mongoose');
 
 var ChannelSchema = new mongoose.Schema({
 	_id: String,

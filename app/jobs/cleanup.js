@@ -10,7 +10,7 @@ var Promise = require('bluebird'),
 exports.removeOldVideos = function(){
 	
 	return Video.remove({
-		published: { $lte: moment.utc().subtract(1, 'month').toISOString() }
+		published: { $lte: moment().subtract(1, 'month').toISOString() }
 	});
 	
 };

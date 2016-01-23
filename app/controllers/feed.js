@@ -74,11 +74,13 @@ router.get('/:user', function(req, res, next) {
 			
 			res.send(feed.render());
 			
+			feed = null;
+			user = null;
 		})
 		.catch(function(e){
 			console.error('feed error', e.error);
 			
-			next(e);
+			return next(e);
 		});
 });
 

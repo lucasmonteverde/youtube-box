@@ -21,9 +21,11 @@ router.get('/logout', function(req, res){
 	res.redirect('/');
 });
 
-router.get('/profile', helpers.isLoggedIn, function(req, res, next){
+router.get('/profile/:id', helpers.isLoggedIn, function(req, res, next){
 	
 	var data = {};
+	
+	//var userId = ( req.user.admin && req.params.id ) ? req.params.id : req.user._id;
 	
 	Subscription
 		.findOne({user: req.user._id})
@@ -36,6 +38,8 @@ router.get('/profile', helpers.isLoggedIn, function(req, res, next){
 			
 		})
 		.then(function(videos){
+			
+			data.title = 'Profile';
 			
 			data.videos = videos;
 			

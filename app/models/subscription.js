@@ -30,4 +30,6 @@ var SubscriptionSchema = new Schema({
 	}]*/
 }, {collection: 'youtube-subscriptions'});
 
+SubscriptionSchema.index({ user: 1 });
+
 module.exports = mongoose.model('Subscription', SubscriptionSchema);

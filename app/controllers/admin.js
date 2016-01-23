@@ -7,8 +7,6 @@ var router = require('express').Router(),
 	Video = require('../models/video'),
 	Subscription = require('../models/subscription');
 
-Promise.promisifyAll(Subscription);
-
 router.all('*', helpers.isAdmin);
 
 router.get('/', function(req, res, next) {
@@ -17,11 +15,17 @@ router.get('/', function(req, res, next) {
 		users: User.count(),
 		channels: Channel.count(),
 		videos: Video.count(),
+		lastUsers: User.find().sort('-_id').limit(1),
 		mostWatchedChannels: mostWatchedChannels(5),
 		mostWatchedVideos: mostWatchedVideos(5),
-		mostActiveUser: mostActiveUser(5)
+		mostActiveUsers: mostActiveUsers(5)
 	})
 	.then(function( result ) {
+		
+		console.log(result);
+		
+		result.title = 'Dashboard';
+		
 		res.render('admin', result);
 	})
 	.catch(function(e) {
@@ -53,7 +57,7 @@ router.get('/cleanup/watched', function(req, res, next){
 
 var mostWatchedChannels = function(total) {
 	
-	return Subscription.aggregateAsync([
+	return Subscription.aggregate([
 		{ $project : { channels : 1, _id : -1 } }, //select fields
 		{ $unwind: '$channels' }, // set subdocument as primary field
 		{ $group: {
@@ -63,41 +67,44 @@ var mostWatchedChannels = function(total) {
 		//{ $match : { count : { $gt : 1} } },
 		{ $sort : { count : -1 } },
 		{ $limit : total }
-	]).then(function (channels) {
+	])
+	.exec()
+	.then(function (channels) {
 		return Channel.populate(channels, {path: '_id'});
-	}).catch(function(e) {
-		console.log(e);
 	});
 };
 
 var mostWatchedVideos = function(total) {
 	
-	return Subscription.aggregateAsync([
+	return Subscription.aggregate([
 		{ $project : { watched : 1, _id : -1 } }, //select fields
 		{ $unwind: '$watched' }, // set subdocument as primary field
 		{ $group: {
-			_id: '$watched',
+			_id: '$watched.video',
 			count: { $sum: 1  }
 		}},
 		{ $match : { count : { $gt : 1} } },
 		{ $sort : { count : -1 } },
 		{ $limit : total }
-	]).then(function (videos) {
+	])
+	.exec()
+	.then(function (videos) {
 		return Video.populate(videos, {path: '_id'});
-	}).then(function (videos) {
+	})
+	.then(function (videos) {
 		return Channel.populate(videos, {path: '_id.channel'});
-	}).catch(function(e) {
-		console.log(e);
 	});
 };
 
-var mostActiveUser = function(total) {
+//http://stackoverflow.com/questions/7811163/how-to-query-for-documents-where-array-size-is-greater-than-one-1-in-mongodb/15224544#15224544
+var mostActiveUsers = function(total) {
 	
 	return Subscription
-			.find({watched : {$gt: 1}})
+			.find({ 'watched.1': {$exists: true}})
 			.limit(total)
 			.sort('-watched')
-			.populate('user');
+			.populate('user')
+			.lean();
 };
 
 

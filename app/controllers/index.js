@@ -4,65 +4,81 @@ var router = require('express').Router(),
 	Subscription = require('../models/subscription'),
 	Video = require('../models/video');
 
-router.get('/', function(req, res) {
-	
-	var data = {
-		title: 'Youtube Box',
-		message: req.session.messages
-	};
-	
-	/*req.app.on('sync', function(user, length){
-		console.log(user , length);
-	});*/
+router.get('/', function(req, res, next) {
 	
 	if( req.isAuthenticated() ){
 		
-		videos(req, res, data);
+		getVideos(req)
+			.then(function( data ) {
+				
+				//TODO: Cookie options management
+				if( data.sort ) {
+					res.cookie('sort', data.sort, {
+						maxAge: 2592000000,
+						httpOnly: true
+					});
+				}
+				
+				res.format({
+					json: function(){
+						res.json( data.videos );
+					},
+					html: function(){
+						
+						data.title = 'Videos';
+						
+						res.render('videos', data);
+					}
+				});
+				
+			})
+			.catch(function(err) {
+				console.error(err);
+				return next(err);
+			});
 		//data.videos = [];
 		
 		//res.render('videos', data);
 	
 	}else{
-		data.layout = 'landing';
 		
-		res.render('index', data);
+		res.render('index', {
+			layout: 'landing',
+			message: req.session.messages
+		});
 	}
 	
 });
 
-var videos = function(req, res, data) {
+var getVideos = function( req ) {
 
-	data.sort = req.query.sort || req.cookies.sort;
+	var data = {
+		sort: req.query.sort || req.cookies.sort
+	};
 	
-	//TODO: Cookie options management
-	if( req.query.sort ) {
-		res.cookie('sort', data.sort, { 
-			maxAge: 2592000000,
-			httpOnly: true
-		});
-	}
-	
-	Subscription
+	return Subscription
 		.findOne({user:req.user._id})
 		.populate({
 			path: 'channels', 
-			select: '-description -updatedDate',
-			options : {sort: 'title'} 
+			select: 'title thumbnail',
+			options : {
+				sort: 'title',
+				lean: true
+			} 
 		})
 		.lean()
 		.then(function(subscription) {
 			
-			if(!subscription)
-				return [];
+			if( ! subscription ) return [];
 				
 			data.channels = subscription.channels;
 				
 			var query = Video.find({
-						_id: {$in: subscription.unwatched}
-					});
+							_id: {$in: subscription.unwatched}
+						});
 					
-			if( ! req.query.all ){
-				query.where('published').gte( moment.utc().subtract(2,'month').toISOString() );
+			if( ! req.query.all ) {
+				query.where('published').gte( moment().subtract(2, 'month').valueOf() );
 			} else {
 				data.all = req.query.all;
 			}
@@ -89,21 +105,11 @@ var videos = function(req, res, data) {
 				video.channel = _.find(data.channels, { _id: video.channel });
 			});
 			
+			data.videos = videos;
+			
 			//req.app.emit('sync', 'query done');
 			
-			res.format({
-				json: function(){
-					res.json(videos);
-				},
-				html: function(){
-					
-					data.title = 'Videos - ' + data.title;
-					data.videos = videos;
-					
-					res.render('videos', data);
-				}
-			});
-			
+			return data;
 		});
 };
 

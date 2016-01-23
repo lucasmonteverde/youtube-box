@@ -43,14 +43,12 @@ var youtube = new YoutubeStrategy({
 		.findOne({ 'youtube.id': profile.id })
 		.then(function(user) {
 			
-			if (!user) {
-				user = new User({
-					name: profile.displayName || 'user',
-					youtube: {
-						id: profile.id || profile._json.id
-					}
-				});
-			}
+			user = user || new User({
+				name: profile.displayName || 'user',
+				youtube: {
+					id: profile.id || profile._json.id
+				}
+			});
 			
 			try{
 				user.avatar = profile._json && profile._json.items[0].snippet.thumbnails.medium.url;
@@ -63,11 +61,13 @@ var youtube = new YoutubeStrategy({
 			}
 			
 			user.youtube.accessToken = accessToken;
-			user.youtube.accessTokenUpdate = new Date();
+			user.youtube.accessTokenUpdate = Date.now();
 			
 			if( refreshToken ) {
 				user.youtube.refreshToken = refreshToken;
 			}
+			
+			user.lastLogin = Date.now();
 			
 			user.markModified('youtube');
 				
