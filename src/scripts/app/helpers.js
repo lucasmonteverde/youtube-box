@@ -1,3 +1,5 @@
+'use strict';
+
 // Avoid `console` errors in browsers that lack a console.
 (function() {
 	var method;
@@ -41,16 +43,16 @@ String.prototype.capitalize = function() {
 		return /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test( $(this).val());
 	};
 	
-	$.extend($.expr[":"], {
+	$.extend($.expr[':'], {
 		// http://jqueryvalidation.org/blank-selector/
-		blank: function( a ) { return !$.trim("" + $(a).val()); },
+		blank: function( a ) { return !$.trim('' + $(a).val()); },
 		// http://jqueryvalidation.org/filled-selector/
-		filled: function( a ) { return !!$.trim("" + $(a).val()); },
+		filled: function( a ) { return !!$.trim('' + $(a).val()); },
 		// http://jqueryvalidation.org/unchecked-selector/
-		unchecked: function( a ) { return !$(a).prop("checked"); }
+		unchecked: function( a ) { return !$(a).prop('checked'); }
 	});
 	
-	/*$.expr[":"].Contains = $.expr.createPseudo(function(arg) {
+	/*$.expr[':'].Contains = $.expr.createPseudo(function(arg) {
 		return function( elem ) {
 			return $(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
 		};

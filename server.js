@@ -11,12 +11,13 @@ var express = require('express'),
 	hbs = require('express-handlebars'),
 	session = require('express-session'),
 	RedisStore = require('connect-redis')(session),
-	db = require('./app/config/db'),
 	cache = require('./app/config/cache'),
 	passport = require('./app/config/passport'),
-	cron = require('./app/config/cron'),
 	fs = require('fs'),
 	app = express();
+	
+require('./app/config/db');
+require('./app/config/cron');
 
 app.engine('html', hbs({
 	defaultLayout: 'main',
@@ -28,6 +29,8 @@ app.engine('html', hbs({
 
 app.set('views', 'app/views');
 app.set('view engine', 'html');
+
+app.disable('x-powered-by');
 
 app.use(logger('dev'));
 app.use(helmet());
@@ -43,7 +46,11 @@ app.use(session({
 	store: new RedisStore({client: cache}),
 	resave: false,
 	saveUninitialized: false,
-	cookie: { maxAge: 2592000000, httpOnly: true } //30 days
+	cookie: {
+		maxAge: 2592000000, //30 days
+		httpOnly: true,
+		secure: 'auto'
+	}
 }));
 
 app.use(passport.initialize());
@@ -66,17 +73,22 @@ app.use(function(req, res, next) {
 	next(err);
 });
 
+ /*jshint unused:false*/
 app.use(function(err, req, res, next) {
+	
+	console.error( err.stack );
+	
 	res.status( err.status || 500 );
 	
 	var response = {
-		layout: false,
+		status: false,
 		message: err.message,
 		error: app.get('env') !== 'production' ? err : {}
 	};
 	
 	res.format({
 		html: function(){
+			response.layout = false;
 			res.render(err.status === 404 ? '404' : 'error', response);
 		},
 		json: function(){

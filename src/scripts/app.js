@@ -1,5 +1,3 @@
-/* global $:true, Cookies:true, Uri:true */
-
 $(document).ready(function(){
 
 	'use strict';
@@ -39,7 +37,7 @@ $(document).ready(function(){
 	
 	var $videos = $('.videos');
 	
-	$('.watched').click(function(e){
+	$('.watched').click(function(){
 		var $video = $(this).closest('.video');
 		
 		API.watched($video.data('id'), $video).done(function(){

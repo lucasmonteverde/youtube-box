@@ -11,51 +11,6 @@ var router = require('express').Router(),
 
 router.all('*', helpers.isAdmin);
 
-router.get('/', function(req, res, next) {
-	
-	return Promise.props({
-		users: User.count(),
-		channels: Channel.count(),
-		videos: Video.count(),
-		lastUsers: User.find().sort('-_id').limit(1),
-		mostWatchedChannels: mostWatchedChannels(5),
-		mostWatchedVideos: mostWatchedVideos(5),
-		mostActiveUsers: mostActiveUsers(5)
-	})
-	.then(function( result ) {
-		
-		console.log(result);
-		
-		result.title = 'Dashboard';
-		
-		res.render('admin', result);
-	})
-	.catch(function(e) {
-		return next(e);
-	});
-	
-});
-
-
-router.get('/cleanup/videos', function(req, res, next){
-	
-	Cleanup.removeOldVideos().then(function(){
-		
-		res.json('done');
-		
-	});
-	
-});
-
-router.get('/cleanup/watched', function(req, res, next){
-	
-	Cleanup.migrationWatched(req.user._id).then(function(){
-		
-		res.json('done');
-		
-	});
-	
-});
 
 var mostWatchedChannels = function(total) {
 	
@@ -109,5 +64,48 @@ var mostActiveUsers = function(total) {
 			.lean();
 };
 
+
+router.get('/', function(req, res, next) {
+	
+	return Promise.props({
+		users: User.count(),
+		channels: Channel.count(),
+		videos: Video.count(),
+		lastUsers: User.find().sort('-_id').limit(1),
+		mostWatchedChannels: mostWatchedChannels(5),
+		mostWatchedVideos: mostWatchedVideos(5),
+		mostActiveUsers: mostActiveUsers(5)
+	})
+	.then(function( result ) {
+		
+		result.title = 'Dashboard';
+		
+		res.render('admin', result);
+	})
+	.catch(function(e) {
+		return next(e);
+	});
+	
+});
+
+router.get('/cleanup/videos', function(req, res){
+	
+	Cleanup.removeOldVideos().then(function(){
+		
+		res.json('done');
+		
+	});
+	
+});
+
+router.get('/cleanup/watched', function(req, res){
+	
+	Cleanup.migrationWatched(req.user._id).then(function(){
+		
+		res.json('done');
+		
+	});
+	
+});
 
 module.exports = router;

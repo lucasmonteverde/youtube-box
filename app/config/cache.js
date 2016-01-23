@@ -1,7 +1,6 @@
 'use strict';
 
-var redis = require('redis'),
-	url = require('url');
+var redis = require('redis');
 	
 var client = redis.createClient({
 	url: process.env.REDIS_URL || process.env.REDISCLOUD_URL,

@@ -6,52 +6,6 @@ var router = require('express').Router(),
 	Subscription = require('../models/subscription'),
 	Video = require('../models/video');
 
-router.get('/', function(req, res, next) {
-	
-	if( req.isAuthenticated() ){
-		
-		getVideos(req)
-			.then(function( data ) {
-				
-				//TODO: Cookie options management
-				if( data.sort ) {
-					res.cookie('sort', data.sort, {
-						maxAge: 2592000000,
-						httpOnly: true
-					});
-				}
-				
-				res.format({
-					json: function(){
-						res.json( data.videos );
-					},
-					html: function(){
-						
-						data.title = 'Videos';
-						
-						res.render('videos', data);
-					}
-				});
-				
-			})
-			.catch(function(err) {
-				console.error(err);
-				return next(err);
-			});
-		//data.videos = [];
-		
-		//res.render('videos', data);
-	
-	}else{
-		
-		res.render('index', {
-			layout: 'landing',
-			message: req.session.messages
-		});
-	}
-	
-});
-
 var getVideos = function( req ) {
 
 	var data = {
@@ -114,5 +68,51 @@ var getVideos = function( req ) {
 			return data;
 		});
 };
+
+router.get('/', function(req, res, next) {
+	
+	if( req.isAuthenticated() ){
+		
+		getVideos(req)
+			.then(function( data ) {
+				
+				//TODO: Cookie options management
+				if( data.sort ) {
+					res.cookie('sort', data.sort, {
+						maxAge: 2592000000,
+						httpOnly: true
+					});
+				}
+				
+				res.format({
+					json: function(){
+						res.json( data.videos );
+					},
+					html: function(){
+						
+						data.title = 'Videos';
+						
+						res.render('videos', data);
+					}
+				});
+				
+			})
+			.catch(function(err) {
+				console.error(err);
+				return next(err);
+			});
+		//data.videos = [];
+		
+		//res.render('videos', data);
+	
+	}else{
+		
+		res.render('index', {
+			layout: 'landing',
+			message: req.session.messages
+		});
+	}
+	
+});
 
 module.exports = router;

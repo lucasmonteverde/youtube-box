@@ -14,7 +14,7 @@ var request = require('request-promise'),
 //require('request-debug')(request);
 Promise.promisifyAll(refresh);
 
-var refreshAccessToken = exports.refreshAccessToken = function(user, nextPageToken){
+var refreshAccessToken = exports.refreshAccessToken = function(user){
 	
 	if( moment.utc().subtract(55, 'minutes').isBefore( user.youtube.accessTokenUpdate ) ) {
 		return Promise.resolve(user);
@@ -37,31 +37,6 @@ var refreshAccessToken = exports.refreshAccessToken = function(user, nextPageTok
 		.catch(function(err) {
 			console.error(err);
 		});
-};
-
-exports.updateSubscriptions = function(){
-	
-	return User
-			.find()
-			.select('_id youtube')
-			.lean()
-			.then(function(users){
-				return users;
-			})
-			.each(function(user){
-				
-				return refreshAccessToken(user)
-					.then(function(user){
-						return subscriptions(user);
-					})
-					.catch(function(err) {
-						console.error(err);
-					});
-					
-			})
-			.catch(function(err) {
-				console.error(err);
-			});
 };
 
 var subscriptions = exports.subscriptions = function(user, nextPageToken){
@@ -106,99 +81,29 @@ var subscriptions = exports.subscriptions = function(user, nextPageToken){
 	
 };
 
-exports.updateChannels = function(){
+exports.updateSubscriptions = function(){
 	
-	return Channel
+	return User
 			.find()
-			.select('_id updatedDate')
+			.select('_id youtube')
 			.lean()
-			.then(function(channels){
-				return channels;
+			.then(function(users){
+				return users;
 			})
-			.each(function(channel){
-				return activities(channel);
+			.each(function(user){
+				
+				return refreshAccessToken(user)
+					.then(function(user){
+						return subscriptions(user);
+					})
+					.catch(function(err) {
+						console.error(err);
+					});
+					
 			})
 			.catch(function(err) {
 				console.error(err);
 			});
-};
-
-var activities = exports.activities = function(channel, nextPageToken){
-	
-	return API('activities', {
-		channelId: channel._id,
-		part: 'snippet,contentDetails',
-		fields: 'nextPageToken,items(snippet,contentDetails)',
-		publishedAfter: channel.updatedDate || moment().subtract(1, 'month').toISOString(),
-		pageToken: nextPageToken
-	}, activities, channel)
-	.filter(function(item){
-		return item.snippet.type === 'upload';
-	})
-	.each(function(item){
-		
-		Video.findByIdAndUpdate(item.contentDetails.upload.videoId, {
-			title: item.snippet.title,
-			description: item.snippet.description,
-			published: item.snippet.publishedAt,
-			channel: item.snippet.channelId,
-		}, { upsert: true }, function(err, video){
-			if (err) console.error( err );
-		});
-		
-	})
-	.then(function(items){
-		
-		Channel.findByIdAndUpdate(channel._id, {
-			updatedDate: moment().toISOString()
-		}, function(err){
-			if (err) console.error( err );
-		});
-			
-		if( items && items.length ) {
-			console.log('activities', items[0].snippet.channelTitle, items.length);
-			
-			var videosId = items.map(function(item){
-				return item.contentDetails.upload.videoId;
-			});
-			
-			Subscription.findOneAndUpdate({
-				channels: channel._id
-			}, {
-				$addToSet: { unwatched: { $each: videosId } }
-			}, function(err, subs){
-				if (err) console.error( err );
-				
-				if( subs instanceof Array ){
-					console.log('subs', subs && subs.length);
-				}
-			});
-			
-			videos(videosId.join(','));
-		}
-	})
-	.catch(function(err) {
-		console.error(err);
-	});
-};
-
-exports.updateVideos = function(){
-	
-	return Video.find({
-		published: {$gte: moment().subtract(1,'month').toISOString() }
-	}).select('_id').lean()
-	.then(function(videos){
-
-		return _.chain(videos).map(function(item){
-			return item._id;
-		}).chunk(50).value();
-	})
-	.each(function(ids){
-		videos(ids.join(','));
-	})
-	.catch(function(err) {
-		console.error(err);
-	});
 };
 
 var videos = exports.videos = function(videoId, nextPageToken){
@@ -243,10 +148,107 @@ var videos = exports.videos = function(videoId, nextPageToken){
 			data.dislikes = item.statistics.dislikeCount || 0;
 		}
 		
-		Video.findByIdAndUpdate(item.id, data, { upsert: true }, function(err, video){
+		Video.findByIdAndUpdate(item.id, data, { upsert: true }, function(err){
 			if (err) console.error( err );
 		});
 		
+	})
+	.catch(function(err) {
+		console.error(err);
+	});
+};
+
+var activities = exports.activities = function(channel, nextPageToken){
+	
+	return API('activities', {
+		channelId: channel._id,
+		part: 'snippet,contentDetails',
+		fields: 'nextPageToken,items(snippet,contentDetails)',
+		publishedAfter: channel.updatedDate || moment().subtract(1, 'month').toISOString(),
+		pageToken: nextPageToken
+	}, activities, channel)
+	.filter(function(item){
+		return item.snippet.type === 'upload';
+	})
+	.each(function(item){
+		
+		Video.findByIdAndUpdate(item.contentDetails.upload.videoId, {
+			title: item.snippet.title,
+			description: item.snippet.description,
+			published: item.snippet.publishedAt,
+			channel: item.snippet.channelId,
+		}, { upsert: true }, function(err){
+			if (err) console.error( err );
+		});
+		
+	})
+	.then(function(items){
+		
+		Channel.findByIdAndUpdate(channel._id, {
+			updatedDate: moment().toISOString()
+		}, function(err){
+			if (err) console.error( err );
+		});
+			
+		if( items && items.length ) {
+			console.log('activities', items[0].snippet.channelTitle, items.length);
+			
+			var videosId = items.map(function(item){
+				return item.contentDetails.upload.videoId;
+			});
+			
+			Subscription.findOneAndUpdate({
+				channels: channel._id
+			}, {
+				$addToSet: { unwatched: { $each: videosId } }
+			}, function(err, subs){
+				if (err) console.error( err );
+				
+				if( subs instanceof Array ){
+					console.log('subs', subs && subs.length);
+				}
+			});
+			
+			videos(videosId.join(','));
+		}
+	})
+	.catch(function(err) {
+		console.error(err);
+	});
+};
+
+exports.updateChannels = function(){
+	
+	return Channel
+			.find()
+			.select('_id updatedDate')
+			.lean()
+			.then(function(channels){
+				return channels;
+			})
+			.each(function(channel){
+				return activities(channel);
+			})
+			.catch(function(err) {
+				console.error(err);
+			});
+};
+
+
+
+exports.updateVideos = function(){
+	
+	return Video.find({
+		published: {$gte: moment().subtract(1,'month').toISOString() }
+	}).select('_id').lean()
+	.then(function(videos){
+
+		return _.chain(videos).map(function(item){
+			return item._id;
+		}).chunk(50).value();
+	})
+	.each(function(ids){
+		videos(ids.join(','));
 	})
 	.catch(function(err) {
 		console.error(err);

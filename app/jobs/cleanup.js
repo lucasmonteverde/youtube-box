@@ -2,9 +2,7 @@
 
 var moment = require('moment'),
 	_ = require('lodash'),
-	User = require('../models/user'),
 	Subscription = require('../models/subscription'),
-	Channel = require('../models/channel'),
 	Video = require('../models/video');
 	
 exports.removeOldVideos = function(){

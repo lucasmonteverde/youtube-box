@@ -3,7 +3,6 @@
 var passport = require('passport'),
 	YoutubeStrategy = require('passport-youtube-v3').Strategy,
 	refresh = require('passport-oauth2-refresh'),
-	request = require('request-promise'),
 	Sync = require('../jobs/sync'),
 	User = require('../models/user');
 	

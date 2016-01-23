@@ -1,3 +1,5 @@
+'use strict';
+
 var request = require('request-promise');
 
 module.exports = function(method, filter, callback, callbackArgs) {

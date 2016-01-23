@@ -2,7 +2,6 @@
 
 var router = require('express').Router(),
 	Promise = require('bluebird'),
-	_ = require('lodash'),
 	Feed = require('feed'),
 	User = require('../models/user'),
 	Subscription = require('../models/subscription'),

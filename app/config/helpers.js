@@ -32,7 +32,7 @@ exports.formatDate = function(date) {
 };
 
 exports.formatTime = function(text) {
-	return moment.utc(moment.duration(text, 'seconds').asMilliseconds()).format("HH:mm:ss").replace(/00:/,'');
+	return moment.utc(moment.duration(text, 'seconds').asMilliseconds()).format('HH:mm:ss').replace(/00:/,'');
 	//return moment.duration(text, 'seconds').format('h:mm:ss');
 };
 
@@ -78,7 +78,6 @@ exports.selected = function(value, elem) {
 };
 
 exports.checked = function(value, elem) {
-	console.log('checked', value, elem);
 	return value === elem ? 'checked' : '';
 };
 

@@ -1,9 +1,19 @@
 {
-	"node": true,
 	"browser": true,
-	"curly": false,
 	"devel": true,
-	"quotmark": false,
 	"jquery": true,
-	"globals": {}
+	"node": true,
+	"curly": false,
+	"eqeqeq": true,
+	"latedef": true,
+	"quotmark": "single",
+	"strict": true,
+	"undef": true,
+	"unused": true,
+
+	"globals": {
+		"$": true,
+		"dataLayer": true,
+		"google": true
+	}
 }

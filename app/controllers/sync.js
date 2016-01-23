@@ -6,14 +6,14 @@ var router = require('express').Router(),
 	
 router.all('*', helpers.isLoggedIn);
 
-router.get('/subscriptions', function(req, res, next) {
+router.get('/subscriptions', function(req, res) {
 	
 	Sync.subscriptions(req.user);
 	
 	res.send('subscriptions done');
 });
 
-router.get('/channels', function(req, res, next) {
+router.get('/channels', function(req, res) {
 	
 	Sync.updateChannels();
 	

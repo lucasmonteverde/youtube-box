@@ -1,7 +1,7 @@
 'use strict';
 
 var router = require('express').Router(),
-	_ = require('lodash'),
+	//_ = require('lodash'),
 	helpers = require('../config/helpers'),
 	Subscription = require('../models/subscription');
 
