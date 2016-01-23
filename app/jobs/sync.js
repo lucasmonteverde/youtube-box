@@ -1,8 +1,11 @@
+'use strict';
+
 var request = require('request-promise'),
 	Promise = require('bluebird'),
 	moment = require('moment'),
 	refresh = require('passport-oauth2-refresh'),
 	_ = require('lodash'),
+	API = require('../libs/api'),
 	User = require('../models/user'),
 	Subscription = require('../models/subscription'),
 	Channel = require('../models/channel'),
@@ -63,7 +66,7 @@ exports.updateSubscriptions = function(){
 
 var subscriptions = exports.subscriptions = function(user, nextPageToken){
 	
-	return api('subscriptions', {
+	return API('subscriptions', {
 		mine: true,
 		part: 'snippet',
 		fields: 'nextPageToken,items(snippet)',
@@ -122,7 +125,7 @@ exports.updateChannels = function(){
 
 var activities = exports.activities = function(channel, nextPageToken){
 	
-	return api('activities', {
+	return API('activities', {
 		channelId: channel._id,
 		part: 'snippet,contentDetails',
 		fields: 'nextPageToken,items(snippet,contentDetails)',
@@ -202,7 +205,7 @@ var videos = exports.videos = function(videoId, nextPageToken){
 	
 	var durationExp = /(?:(\d+)H)?(?:(\d+)M)?(\d+)S/;
 	
-	return api('videos', {
+	return API('videos', {
 		id: videoId,
 		part: 'contentDetails,statistics',
 		fields: 'nextPageToken,items(id,contentDetails,statistics)',
@@ -247,45 +250,6 @@ var videos = exports.videos = function(videoId, nextPageToken){
 	})
 	.catch(function(err) {
 		console.error(err);
-	});
-};
-
-var api = function(method, filter, callback, callbackArgs) {
-	
-	//console.time('request');
-	
-	filter.prettyPrint = false;
-	filter.maxResults = 50;
-	
-	var params = {
-		url: 'https://www.googleapis.com/youtube/v3/' + method,
-		qs: filter,
-		json: true,
-		gzip: true
-	};
-	
-	if ( filter.mine && callbackArgs.youtube ) {
-		params.auth = {
-			bearer: callbackArgs.youtube.accessToken
-		};
-	} else {
-		filter.key = process.env.YOUTUBE_API_KEY;
-	}
-	
-	return request(params).then(function(data){
-		//console.timeEnd('request');
-		
-		if( data.nextPageToken && callback ) {
-			//console.log('callback', method, filter);
-			callback(callbackArgs, data.nextPageToken);
-		}
-		
-		return data.items;
-	})
-	.catch(function(e){
-		console.error('request', e.error);
-		
-		return [];
 	});
 };
 

@@ -1,3 +1,5 @@
+'use strict';
+
 var router = require('express').Router(),
 	Promise = require('bluebird'),
 	helpers = require('../config/helpers'),

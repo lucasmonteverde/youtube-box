@@ -1,4 +1,4 @@
-/* global process */
+'use strict';
 
 var mongoose = require('mongoose'),
 	dbURI = process.env.MONGODB || process.env.MONGOHQ_URL;

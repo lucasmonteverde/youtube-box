@@ -1,3 +1,5 @@
+'use strict';
+
 var moment = require('moment');
 
 exports.isLoggedIn = function(req, res, next) {

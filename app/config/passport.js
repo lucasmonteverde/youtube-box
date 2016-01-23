@@ -1,3 +1,5 @@
+'use strict';
+
 var passport = require('passport'),
 	YoutubeStrategy = require('passport-youtube-v3').Strategy,
 	refresh = require('passport-oauth2-refresh'),

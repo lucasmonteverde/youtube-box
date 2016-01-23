@@ -1,4 +1,6 @@
-var mongoose	= require('mongoose');
+'use strict';
+
+var mongoose = require('mongoose');
 
 var VideoSchema = new mongoose.Schema({
 	_id: String,

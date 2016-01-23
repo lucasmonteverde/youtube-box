@@ -1,3 +1,5 @@
+'use strict';
+
 var mongoose = require('mongoose'),
 	Sync = require('../jobs/sync'),
 	Schema = mongoose.Schema;

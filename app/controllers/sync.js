@@ -1,3 +1,5 @@
+'use strict';
+
 var router = require('express').Router(),
 	helpers = require('../config/helpers'),
 	Sync = require('../jobs/sync');

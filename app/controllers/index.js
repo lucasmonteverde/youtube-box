@@ -1,3 +1,5 @@
+'use strict';
+
 var router = require('express').Router(),
 	moment = require('moment'),
 	_ = require('lodash'),

@@ -1,3 +1,5 @@
+'use strict';
+
 var router = require('express').Router(),
 	_ = require('lodash'),
 	helpers = require('../config/helpers'),
