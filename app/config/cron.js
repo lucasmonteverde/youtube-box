@@ -1,9 +1,9 @@
 var CronJob = require('cron').CronJob,
 	Sync = require('../jobs/sync');
 	
-new CronJob('00 00 * * * *', function() {
+new CronJob('00 */30 * * * *', function() {
 	
-	if( process.env.ENV === 'dev' ) return;
+	if( process.env.NODE_ENV === 'development' ) return;
 	
 	Sync.updateSubscriptions()
 		.then( function(){
