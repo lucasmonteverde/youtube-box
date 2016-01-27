@@ -16,11 +16,9 @@ Promise.promisifyAll(refresh);
 
 var refreshAccessToken = exports.refreshAccessToken = function(user){
 	
-	console.log(user);
-	
-	/*if( moment.utc().subtract(55, 'minutes').isBefore( user.youtube.accessTokenUpdate ) ) {
+	if( moment.utc().subtract(55, 'minutes').isBefore( user.youtube.accessTokenUpdate ) ) {
 		return Promise.resolve(user);
-	}*/
+	}
 	
 	if( ! user.youtube.refreshToken ) {
 		
