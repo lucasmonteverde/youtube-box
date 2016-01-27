@@ -3,27 +3,24 @@
 var router = require('express').Router(),
 	Promise = require('bluebird'),
 	Feed = require('feed'),
+	cache = require('../config/cache').cache,
 	User = require('../models/user'),
 	Subscription = require('../models/subscription'),
 	Video = require('../models/video');
 	
-router.get('/:user', function(req, res, next) {
+Promise.promisifyAll(cache);
+
+var buildFeed = function( req ){
 	
-	var feed, user;
+	var feed, user, query;
 	
-	if( ! req.params.user ) {
-		next(new Error('User not defined'));
-	}
-	
-	var query;
-	
-	if( ! req.user ){
+	if( ! req.user ) {
 		query = User.findOne({'youtube.id': req.params.user}).lean();
 	}else{
 		query = Promise.resolve(req.user);
 	}
 	
-	query
+	return query
 		.then(function(item){
 			user = item;
 			
@@ -70,13 +67,32 @@ router.get('/:user', function(req, res, next) {
 			
 		})
 		.then(function(){
+			user = null;
+			return feed.render();
+		});
+	
+}
+
+router.get('/:user', function(req, res, next) {
+	
+	if( ! req.params.user ) {
+		next(new Error('User not defined'));
+	}
+	
+	cache
+		.getAsync(req.originalUrl)
+		.then(function(value){
+			return value || buildFeed(req);
+		})
+		.then(function( feed ){
 			
 			res.set('Content-Type', 'text/xml');
 			
-			res.send(feed.render());
+			res.send(feed);
+			
+			cache.set(req.originalUrl, feed, 1800);
 			
 			feed = null;
-			user = null;
 		})
 		.catch(function(e){
 			console.error('feed error', e.error);
