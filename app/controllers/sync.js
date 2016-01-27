@@ -2,7 +2,8 @@
 
 var router = require('express').Router(),
 	helpers = require('../config/helpers'),
-	Sync = require('../jobs/sync');
+	Sync = require('../jobs/sync'),
+	Cleanup = require('../jobs/cleanup');
 	
 router.all('*', helpers.isLoggedIn);
 
@@ -19,5 +20,13 @@ router.get('/channels', function(req, res) {
 	
 	res.send('channels done');
 });
+
+router.get('/cleanup/videos', function(req, res) {
+	
+	Cleanup.unwatchVideos(req.user);
+	
+	res.send('channels old done');
+});
+
 
 module.exports = router;

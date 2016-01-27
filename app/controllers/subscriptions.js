@@ -1,7 +1,7 @@
 'use strict';
 
 var router = require('express').Router(),
-	//_ = require('lodash'),
+	_ = require('lodash'),
 	helpers = require('../config/helpers'),
 	Subscription = require('../models/subscription');
 
@@ -16,13 +16,17 @@ router.post('/watched', function(req, res, next) {
 	
 	console.log( videosId );
 	
+	var watched = _.map(videosId, function(id){
+		return {
+			video: id,
+			date: Date.now()
+		};
+	});
+	
 	Subscription
 		.update( { user: req.user._id }, {
-			$addToSet: { watched: {
-				video : videosId[0],
-				date: Date.now()
-			} },
-			$pull: { unwatched: videosId[0] }
+			$addToSet: { watched: { $each: watched } },
+			$pullAll: { unwatched: videosId }
 		})
 		.then(function(){
 			

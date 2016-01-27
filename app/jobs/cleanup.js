@@ -13,25 +13,19 @@ exports.removeOldVideos = function(){
 	
 };
 
-exports.migrationWatched = function(user){
+exports.unwatchVideos = function(user){
 	
 	return Subscription.findOne({
 		user: user
-	}).then(function(sub){
-		
-		console.log(sub);
+	})
+	.select('channels unwatched')
+	.populate('unwatched', 'channel')
+	.then(function(sub){
 		
 		if( sub ) {
-			sub.watched.forEach(function(video){
-				sub.watches.push({
-					video : video,
-					date: Date.now()
-				});
-				
-				sub.unwatched.pull(video);
+			sub.unwatched = _.filter(sub.unwatched, function(video){
+				return sub.channels.indexOf(video.channel) !== -1;
 			});
-			
-			sub.watches = _.uniq(sub.watches, 'video');
 		}
 		
 		return sub.save();

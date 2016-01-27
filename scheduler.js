@@ -2,9 +2,13 @@
 
 require('dotenv').load();
 
-var db = require('./app/config/db'),
-	passport = require('./app/config/passport'),
-	Sync = require('./app/jobs/sync');
+process.env.NODE_ENV = 'development';
+process.env.DEBUG = 'app:*';
+
+require('./app/config/db'),
+require('./app/config/passport');
+
+var Sync = require('./app/jobs/sync');
 	
 //name = process.argv.slice(2);
 	
@@ -22,9 +26,9 @@ var db = require('./app/config/db'),
 	});
 	*/
 	
-//Sync.updateSubscriptions();
+Sync.updateSubscriptions();
 
-Sync.updateChannels();
+//Sync.updateChannels();
 
 //Sync.updateVideos();
 

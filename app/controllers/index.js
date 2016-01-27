@@ -9,7 +9,8 @@ var router = require('express').Router(),
 var getVideos = function( req ) {
 
 	var data = {
-		sort: req.query.sort || req.cookies.sort
+		sort: req.query.sort || req.cookies.sort,
+		all: req.query.all || req.cookies.all
 	};
 	
 	return Subscription
@@ -33,10 +34,8 @@ var getVideos = function( req ) {
 							_id: {$in: subscription.unwatched}
 						});
 					
-			if( ! req.query.all ) {
+			if( ! data.all ) {
 				query.where('published').gte( moment().subtract(2, 'month').valueOf() );
-			} else {
-				data.all = req.query.all;
 			}
 			
 			if( req.query.search ) {
@@ -47,9 +46,9 @@ var getVideos = function( req ) {
 			if( req.query.channel ) {
 				query.where('channel', req.query.channel);
 				data.channel = req.query.channel;
-			}/*else{
-				query.where('channel', {$in: subscription.channels});
-			}*/
+			}else{
+				query.where('channel').in(subscription.channels);
+			}
 			
 			query.sort(data.sort ? data.sort : '-published');
 			
@@ -79,6 +78,13 @@ router.get('/', function(req, res, next) {
 				//TODO: Cookie options management
 				if( data.sort ) {
 					res.cookie('sort', data.sort, {
+						maxAge: 2592000000,
+						httpOnly: true
+					});
+				}
+				
+				if( data.all ) {
+					res.cookie('all', data.all, {
 						maxAge: 2592000000,
 						httpOnly: true
 					});

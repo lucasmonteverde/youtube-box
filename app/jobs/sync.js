@@ -16,23 +16,32 @@ Promise.promisifyAll(refresh);
 
 var refreshAccessToken = exports.refreshAccessToken = function(user){
 	
-	if( moment.utc().subtract(55, 'minutes').isBefore( user.youtube.accessTokenUpdate ) ) {
+	console.log(user);
+	
+	/*if( moment.utc().subtract(55, 'minutes').isBefore( user.youtube.accessTokenUpdate ) ) {
 		return Promise.resolve(user);
-	}
+	}*/
 	
 	if( ! user.youtube.refreshToken ) {
-		return Promise.reject(new Error('refreshToken is not defined') );
+		
+		user.status = false;
+		
+		user.save();
+		
+		return Promise.reject(new Error('refreshToken is not defined'));
 	}
 	
 	return refresh
 		.requestNewAccessTokenAsync('youtube', user.youtube.refreshToken)
-		.then(function(result){
-			console.log( 'accessToken', result[0] );
+		.then(function(accessToken){
+			console.log( 'accessToken', accessToken );
 			
-			return User.findByIdAndUpdate(user._id, {
-				'youtube.accessToken': result[0],
-				'youtube.accessTokenUpdate': moment().toISOString()
-			}, { new : true });
+			user.youtube.accessToken = accessToken;
+			user.youtube.accessTokenUpdate = new Date().toISOString();
+			
+			user.markModified('youtube');
+			
+			return user.save();
 		})
 		.catch(function(err) {
 			console.error(err);
@@ -48,28 +57,20 @@ var subscriptions = exports.subscriptions = function(user, nextPageToken){
 		pageToken: nextPageToken
 	}, subscriptions, user)
 	.each(function(item){
-			
-		return Channel.findByIdAndUpdate(item.snippet.resourceId.channelId, {
+		
+		Channel.findByIdAndUpdate(item.snippet.resourceId.channelId, {
 			title: item.snippet.title,
 			description: item.snippet.description,
 			thumbnail: item.snippet.thumbnails.default.url
-		}, { upsert: true });
+		}, { upsert: true }).exec();
 		
 	})
 	.then(function(items){
 		
-		if( items && items.length ){
-			var channelsId = items.map(function(item){
-				return item.snippet.resourceId.channelId;
-			});
-			
-			Subscription.findOneAndUpdate({'user': user._id}, nextPageToken ? {
-				$addToSet: { channels: { $each: channelsId } }
-			} : {
-				channels: channelsId
-			}, { upsert: true }, function(err){
-				if(err) console.error( err );
-			});
+		if( items && items.length ) {
+			Subscription.update({user: user._id}, {
+				$addToSet: { channels: { $each: _.map(items, 'snippet.resourceId.channelId') } }
+			}, { upsert: true }).exec();
 		}
 		
 		console.log('channels', items && items.length);
@@ -84,9 +85,8 @@ var subscriptions = exports.subscriptions = function(user, nextPageToken){
 exports.updateSubscriptions = function(){
 	
 	return User
-			.find()
-			.select('_id youtube')
-			.lean()
+			.find({status: true})
+			.select('youtube')
 			.then(function(users){
 				return users;
 			})
@@ -95,9 +95,6 @@ exports.updateSubscriptions = function(){
 				return refreshAccessToken(user)
 					.then(function(user){
 						return subscriptions(user);
-					})
-					.catch(function(err) {
-						console.error(err);
 					});
 					
 			})
@@ -164,7 +161,7 @@ var activities = exports.activities = function(channel, nextPageToken){
 		channelId: channel._id,
 		part: 'snippet,contentDetails',
 		fields: 'nextPageToken,items(snippet,contentDetails)',
-		publishedAfter: channel.updatedDate || moment().subtract(1, 'month').toISOString(),
+		publishedAfter: channel.updatedDate || moment().subtract(1, 'month').valueOf(),
 		pageToken: nextPageToken
 	}, activities, channel)
 	.filter(function(item){
@@ -177,37 +174,26 @@ var activities = exports.activities = function(channel, nextPageToken){
 			description: item.snippet.description,
 			published: item.snippet.publishedAt,
 			channel: item.snippet.channelId,
-		}, { upsert: true }, function(err){
-			if (err) console.error( err );
-		});
+		}, { upsert: true }).exec();
 		
 	})
 	.then(function(items){
 		
-		Channel.findByIdAndUpdate(channel._id, {
-			updatedDate: moment().toISOString()
-		}, function(err){
-			if (err) console.error( err );
-		});
+		if( ! nextPageToken ) {
+			channel.updatedDate = Date.now();
+			channel.save();
+		}
 			
 		if( items && items.length ) {
 			console.log('activities', items[0].snippet.channelTitle, items.length);
 			
-			var videosId = items.map(function(item){
-				return item.contentDetails.upload.videoId;
-			});
+			var videosId = _.map(items, 'contentDetails.upload.videoId');
 			
-			Subscription.findOneAndUpdate({
+			Subscription.update({
 				channels: channel._id
 			}, {
 				$addToSet: { unwatched: { $each: videosId } }
-			}, function(err, subs){
-				if (err) console.error( err );
-				
-				if( subs instanceof Array ){
-					console.log('subs', subs && subs.length);
-				}
-			});
+			}).exec();
 			
 			videos(videosId.join(','));
 		}
@@ -221,8 +207,7 @@ exports.updateChannels = function(){
 	
 	return Channel
 			.find()
-			.select('_id updatedDate')
-			.lean()
+			.select('updatedDate')
 			.then(function(channels){
 				return channels;
 			})
@@ -239,13 +224,12 @@ exports.updateChannels = function(){
 exports.updateVideos = function(){
 	
 	return Video.find({
-		published: {$gte: moment().subtract(1,'month').toISOString() }
-	}).select('_id').lean()
+		published: {$gte: moment().subtract(1, 'month').valueOf() }
+	})
+	.select('_id')
+	.lean()
 	.then(function(videos){
-
-		return _.chain(videos).map(function(item){
-			return item._id;
-		}).chunk(50).value();
+		return _.chain(videos).map('_id').chunk(50).value();
 	})
 	.each(function(ids){
 		videos(ids.join(','));

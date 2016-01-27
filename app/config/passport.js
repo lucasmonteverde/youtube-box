@@ -62,7 +62,7 @@ var youtube = new YoutubeStrategy({
 			}
 			
 			user.youtube.accessToken = accessToken;
-			user.youtube.accessTokenUpdate = Date.now();
+			user.youtube.accessTokenUpdate = new Date().toISOString();
 			
 			if( refreshToken ) {
 				user.youtube.refreshToken = refreshToken;
