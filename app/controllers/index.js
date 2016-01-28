@@ -15,6 +15,7 @@ var getVideos = function( req ) {
 	
 	return Subscription
 		.findOne({user:req.user._id})
+		.select('channels unwatched')
 		.populate({
 			path: 'channels', 
 			select: 'title thumbnail',
@@ -30,9 +31,9 @@ var getVideos = function( req ) {
 				
 			data.channels = subscription.channels;
 				
-			var query = Video.find({
-							_id: {$in: subscription.unwatched}
-						});
+			var query = Video.find();
+			
+			query.where('_id').in(subscription.unwatched);
 					
 			if( ! data.all ) {
 				query.where('published').gte( moment().subtract(2, 'month').valueOf() );
@@ -120,5 +121,58 @@ router.get('/', function(req, res, next) {
 	}
 	
 });
+
+router.get('/watched', function(req, res, next) {
+	
+	
+	Subscription
+		.findOne({user:req.user._id})
+		.select('channels watched')
+		.populate({
+			path: 'watched.video',
+			options: {
+				lean: true
+			},
+			populate: {
+				path: 'channel',
+				model: 'Channel',
+				select: 'title thumbnail',
+				options : {
+					lean: true
+				}
+			}
+		})
+		.sort('-watched.date')
+		.lean()
+		.then(function(data){
+			
+			data.videos = _.chain(data.watched)
+										.reverse()
+										.filter('video')
+										.map(function(watched){
+											watched.video.watched = watched.date;
+											return watched.video;
+										})
+										.uniqBy('_id')
+										.slice(0, 100)
+										.value();
+			
+			delete data.watched;
+			
+			res.format({
+				json: function(){
+					res.json( data );
+				},
+				html: function(){
+					
+					data.title = 'Watched';
+		
+					res.render('videos', data);
+				}
+			});
+			
+		});
+	
+})
 
 module.exports = router;

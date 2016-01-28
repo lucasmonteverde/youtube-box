@@ -27,10 +27,15 @@ module.exports = function(method, filter, callback, callbackArgs) {
 	return request(params).then(function(data){
 		//console.timeEnd('request');
 		
+		var cbArgs = callbackArgs;
+		
 		if( data.nextPageToken && callback ) {
 			//console.log('callback', method, filter);
-			callback(callbackArgs, data.nextPageToken);
+			callback(cbArgs, data.nextPageToken);
 		}
+		
+		callback = null;
+		callbackArgs = null;
 		
 		return data.items;
 	})

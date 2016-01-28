@@ -7,6 +7,17 @@ var router = require('express').Router(),
 
 router.all('*', helpers.isLoggedIn);
 
+router.get('/', function(req, res, next) {
+	
+	Subscription
+		.findOne({user:req.user._id})
+		.select('channels')
+		.lean()
+		.then(function(subscriptions){
+			res.json( subscriptions );
+		});
+});
+
 router.post('/watched', function(req, res, next) {
 	
 	if( ! req.body.video ) 
@@ -25,7 +36,7 @@ router.post('/watched', function(req, res, next) {
 	
 	Subscription
 		.update( { user: req.user._id }, {
-			$addToSet: { watched: { $each: watched } },
+			$push: { watched: { $each: watched } },
 			$pullAll: { unwatched: videosId }
 		})
 		.then(function(){

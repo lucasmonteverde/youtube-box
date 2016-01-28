@@ -19,11 +19,13 @@ var SubscriptionSchema = new Schema({
 	watched: [{
 		_id: false,
 		select: false,
-		date: Date,
+		date: {
+			type: Date,
+			default: Date.now()
+		},
 		video: {
 			type: String,
-			ref: 'Video',
-			//unique: true
+			ref: 'Video'
 		}
 	}]
 	/*watched: [{

@@ -32,14 +32,16 @@ var refreshAccessToken = exports.refreshAccessToken = function(user){
 	return refresh
 		.requestNewAccessTokenAsync('youtube', user.youtube.refreshToken)
 		.then(function(accessToken){
-			console.log( 'accessToken', accessToken );
+			//console.log( 'accessToken', accessToken );
 			
 			user.youtube.accessToken = accessToken;
 			user.youtube.accessTokenUpdate = new Date().toISOString();
 			
 			user.markModified('youtube');
 			
-			return user.save();
+			user.save();
+			
+			return user;
 		})
 		.catch(function(err) {
 			console.error(err);
@@ -66,10 +68,17 @@ var subscriptions = exports.subscriptions = function(user, nextPageToken){
 	.then(function(items){
 		
 		if( items && items.length ) {
-			Subscription.update({user: user._id}, {
-				$addToSet: { channels: { $each: _.map(items, 'snippet.resourceId.channelId') } }
+			
+			var channelsId = _.map(items, 'snippet.resourceId.channelId');
+			
+			Subscription.update({user: user._id}, nextPageToken ? {
+				$addToSet: { channels: { $each: channelsId } }
+			} : {
+				channels: channelsId
 			}, { upsert: true }).exec();
 		}
+		
+		user = null;
 		
 		console.log('channels', items && items.length);
 		
@@ -91,8 +100,8 @@ exports.updateSubscriptions = function(){
 			.each(function(user){
 				
 				return refreshAccessToken(user)
-					.then(function(user){
-						return subscriptions(user);
+					.then(function(refreshUser){
+						return subscriptions(refreshUser);
 					});
 					
 			})
@@ -102,8 +111,6 @@ exports.updateSubscriptions = function(){
 };
 
 var videos = exports.videos = function(videoId, nextPageToken){
-	
-	var durationExp = /(?:(\d+)H)?(?:(\d+)M)?(\d+)S/;
 	
 	return API('videos', {
 		id: videoId,
@@ -133,7 +140,7 @@ var videos = exports.videos = function(videoId, nextPageToken){
 			definition: item.contentDetails.definition
 		};
 		
-		if( (result = durationExp.exec(item.contentDetails.duration) ) ) {
+		if( (result = /(?:(\d+)H)?(?:(\d+)M)?(\d+)S/.exec(item.contentDetails.duration) ) ) {
 			data.duration = ((parseInt(result[1] || 0, 10) * 60) + parseInt(result[2] || 0, 10) ) * 60 + parseInt(result[3] || 0, 10);
 		}
 		
@@ -191,10 +198,12 @@ var activities = exports.activities = function(channel, nextPageToken){
 				channels: channel._id
 			}, {
 				$addToSet: { unwatched: { $each: videosId } }
-			}).exec();
+			}, {multi: true}).exec();
 			
 			videos(videosId.join(','));
 		}
+		
+		channel = null;
 	})
 	.catch(function(err) {
 		console.error(err);
@@ -252,6 +261,8 @@ exports.getUserEmail = function(user){
 			user.email = result.emails[0].value;
 			
 			user.save();
+			
+			user = null;
 		}
 	})
 	.catch(function(e){

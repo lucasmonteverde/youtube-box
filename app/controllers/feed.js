@@ -24,7 +24,10 @@ var buildFeed = function( req ){
 		.then(function(item){
 			user = item;
 			
-			return Subscription.findOne({user:user._id}).select('channels').lean();
+			return Subscription
+						.findOne({user:user._id})
+						.select('channels')
+						.lean();
 		})
 		.then(function(subscription){
 			

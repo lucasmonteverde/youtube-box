@@ -47,7 +47,6 @@ gulp.task('styles', function () {
 			outputStyle: 'compressed'
 		}).on('error', $.sass.logError))
 		.pipe($.autoprefixer())
-		//.pipe($.csso())
 		.pipe(gulp.dest(paths.dest.styles));
 });
 
