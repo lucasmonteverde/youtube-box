@@ -67,6 +67,10 @@ fs.readdirSync('./app/controllers').forEach(function (controller) {
 	app.use('/' + controller.replace('.js', '').replace('index', ''), require('./app/controllers/' + controller));
 });
 
+app.use(rollbar.errorHandler( process.env.ROLLBAR_ACCESS_TOKEN, {
+	codeVersion: require('./package.json').version
+}));
+
 app.use(function(req, res, next) {
 	var err = new Error('Not Found');
 	err.status = 404;

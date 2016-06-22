@@ -88,11 +88,7 @@ gulp.task('express', function () {
 	return $.nodemon({ 
 				script: 'server.js', 
 				ext: 'html js', 
-				ignore: ['src/**', 'dist/**', 'node_modules/**'],
-				env: {
-					NODE_ENV: 'development',
-					DEBUG: 'app:*'
-				},
+				ignore: ['src/**', 'dist/**', 'node_modules/**']
 				//tasks: ['lint']
 			})
 			//.on('change', ['lint'])
