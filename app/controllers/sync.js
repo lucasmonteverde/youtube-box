@@ -28,5 +28,12 @@ router.get('/cleanup/videos', function(req, res) {
 	res.send('channels old done');
 });
 
+router.get('/cleanup/subscription', function(req, res) {
+	
+	Cleanup.subscriptionVideosUpgrade(req.user);
+	
+	res.send('subscription upgrade done');
+});
+
 
 module.exports = router;

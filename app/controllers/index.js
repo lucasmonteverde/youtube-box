@@ -14,8 +14,13 @@ var getVideos = function( req ) {
 	};
 	
 	return Subscription
-		.findOne({user:req.user._id})
-		.select('channels unwatched')
+		.findOne({
+			user: req.user._id,
+			/*videos: { $elemMatch: {
+				watched: { $eq: null }
+			} }*/
+		})
+		.select('channels videos')
 		.populate({
 			path: 'channels', 
 			select: 'title thumbnail',
@@ -30,11 +35,21 @@ var getVideos = function( req ) {
 			if( ! subscription ) return [];
 				
 			data.channels = subscription.channels;
+
+			var news = subscription.videos.filter(function(video) {
+				return !!! video.watched;
+			});
+
+			console.log('watched', news);
+
+			/*news = news.map(function( video ) {
+				return video._id;
+			});*/
 				
 			var query = Video.find();
 			
-			query.where('_id').in(subscription.unwatched);
-					
+			query.where('_id').in( news ); //_.map(subscription.videos, '_id')
+			
 			if( ! data.all ) {
 				query.where('published').gte( moment().subtract(2, 'month').valueOf() );
 			}
@@ -47,9 +62,11 @@ var getVideos = function( req ) {
 			if( req.query.channel ) {
 				query.where('channel', req.query.channel);
 				data.channel = req.query.channel;
-			}else{
+			}/*else{
 				query.where('channel').in(subscription.channels);
-			}
+			}*/
+
+			query.limit(10);
 			
 			query.sort(data.sort ? data.sort : '-published');
 			
@@ -57,6 +74,7 @@ var getVideos = function( req ) {
 		})
 		.then(function(videos) {
 			
+			//manual populate
 			_.each(videos, function(video) {
 				video.channel = _.find(data.channels, { _id: video.channel });
 			});
@@ -171,8 +189,12 @@ router.get('/watched', function(req, res, next) {
 				}
 			});
 			
+		})
+		.catch(function(err) {
+			console.error(err);
+			return next(err);
 		});
 	
-})
+});
 
 module.exports = router;

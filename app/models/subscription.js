@@ -27,6 +27,11 @@ var SubscriptionSchema = new Schema({
 			type: String,
 			ref: 'Video'
 		}
+	}],
+	videos: [{
+		_id: String,
+		select: false,
+		watched: Date
 	}]
 	/*watched: [{
 		type: String,

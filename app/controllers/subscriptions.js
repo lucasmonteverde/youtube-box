@@ -15,30 +15,29 @@ router.get('/', function(req, res, next) {
 		.lean()
 		.then(function(subscriptions){
 			res.json( subscriptions );
+		})
+		.catch(function(e) {
+			return next(e);
 		});
 });
 
 router.post('/watched', function(req, res, next) {
 	
-	if( ! req.body.video ) 
+	if( ! req.body.video ) {
 		return next(new Error('video is not set'));
+	}
 		
 	var videosId = req.body.video.split(',');
 	
 	console.log( videosId );
-	
-	var watched = _.map(videosId, function(id){
-		return {
-			video: id,
-			date: Date.now()
-		};
-	});
-	
+
 	Subscription
-		.update( { user: req.user._id }, {
-			$push: { watched: { $each: watched } },
-			$pullAll: { unwatched: videosId }
-		})
+		.update( {
+			'user': req.user._id,
+			'videos._id': { $in: videosId }
+		}, { $set: {
+			'videos.$.watched': Date.now()
+		}})
 		.then(function(){
 			
 			res.json({
@@ -50,44 +49,6 @@ router.post('/watched', function(req, res, next) {
 		.catch(function(e) {
 			return next(e);
 		});
-	
-	/*Subscription
-		.findOneAndUpdate({user:req.user._id}, {
-			$addToSet: { watched: { video : videosId, date: Date.now() } },
-			$pullAll: { unwatched: videosId }
-		},*/
-	
-	/*Subscription
-		.findOne({user:req.user._id})
-		.select('watched unwatched')
-		.then(function(sub){
-			
-			if( sub ) {
-				videosId.forEach(function(video){
-					sub.watched.push({ 
-						video : video,
-						date: Date.now()
-					});
-					
-					sub.unwatched.pull(video);
-				});
-				
-				sub.watched = _.uniq(sub.watched, 'video');
-				
-				sub.save(function(err){
-					if( err ) console.error(err);
-					
-					res.json({
-						status: !err,
-						message: err ? err : 'video watched saved!'
-					});
-				});
-			}
-			
-		})
-		.catch(function(e) {
-			return next(e);
-		});*/
 		
 });
 	

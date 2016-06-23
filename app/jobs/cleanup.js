@@ -32,3 +32,37 @@ exports.unwatchVideos = function(user){
 	});
 	
 };
+
+
+exports.subscriptionVideosUpgrade = function(user){
+
+	return Subscription.findOne({
+		user: user
+	})
+	.select('watched unwatched')
+	.then(function(sub) {
+
+		sub.videos = [];
+
+		_.each(sub.unwatched, function(video) {
+
+			sub.videos.push({
+				_id: video
+			});
+
+		});
+
+		_.each(sub.watched, function(video) {
+
+			sub.videos.push({
+				_id: video.video,
+				watched: video.date
+			});
+
+		});
+
+		sub.save();
+
+	});
+
+};

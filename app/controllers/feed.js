@@ -74,7 +74,7 @@ var buildFeed = function( req ){
 			return feed.render();
 		});
 	
-}
+};
 
 router.get('/:user', function(req, res, next) {
 	

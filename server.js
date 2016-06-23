@@ -4,6 +4,7 @@
 
 var express = require('express'),
 	logger = require('morgan'),
+	rollbar = require('rollbar'),
 	cookieParser = require('cookie-parser'),
 	bodyParser = require('body-parser'),
 	compression = require('compression'),
@@ -37,10 +38,10 @@ app.use(helmet());
 app.use(compression());
 app.use(express.static('dist'));
 
-app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 //app.use(bodyParser.json());
 
+app.use(cookieParser());
 app.use(session({
 	secret: 'youtube-box',
 	store: new RedisStore({client: cache}),
