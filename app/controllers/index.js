@@ -65,8 +65,6 @@ var getVideos = function( req ) {
 			}/*else{
 				query.where('channel').in(subscription.channels);
 			}*/
-
-			query.limit(10);
 			
 			query.sort(data.sort ? data.sort : '-published');
 			

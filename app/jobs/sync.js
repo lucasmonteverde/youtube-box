@@ -197,7 +197,7 @@ var activities = exports.activities = function(channel, nextPageToken){
 			Subscription.update({
 				channels: channel._id
 			}, {
-				$addToSet: { unwatched: { $each: videosId } }
+				$addToSet: { videos: { $each: videosId } }
 			}, {multi: true}).exec();
 			
 			videos(videosId.join(','));

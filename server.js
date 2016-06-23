@@ -31,8 +31,6 @@ app.engine('html', hbs({
 app.set('views', 'app/views');
 app.set('view engine', 'html');
 
-app.disable('x-powered-by');
-
 app.use(logger('dev'));
 app.use(helmet());
 app.use(compression());

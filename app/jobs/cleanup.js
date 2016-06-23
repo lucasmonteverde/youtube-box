@@ -34,35 +34,42 @@ exports.unwatchVideos = function(user){
 };
 
 
-exports.subscriptionVideosUpgrade = function(user){
+exports.subscriptionVideosUpgrade = function(){
 
-	return Subscription.findOne({
-		user: user
-	})
-	.select('watched unwatched')
-	.then(function(sub) {
+	return Subscription.find()
+		.select('watched unwatched')
+		.then(function(subscriptions){
+			return subscriptions;
+		})
+		.each(function(sub) {
 
-		sub.videos = [];
+			sub.videos = [];
 
-		_.each(sub.unwatched, function(video) {
+			_.each(sub.unwatched, function(video) {
 
-			sub.videos.push({
-				_id: video
+				sub.videos.push({
+					_id: video
+				});
+
 			});
 
-		});
+			_.each(sub.watched, function(video) {
 
-		_.each(sub.watched, function(video) {
+				sub.videos.push({
+					_id: video.video,
+					watched: video.date
+				});
 
-			sub.videos.push({
-				_id: video.video,
-				watched: video.date
 			});
 
+			sub.unwatched = [];
+
+			sub.watched = [];
+
+			return sub.save();
+		})
+		.then(function(){
+			return 'done';
 		});
-
-		sub.save();
-
-	});
 
 };
