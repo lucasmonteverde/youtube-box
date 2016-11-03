@@ -20,6 +20,22 @@ router.get('/', function(req, res, next) {
 		});
 });
 
+router.get('/all', function(req, res, next) {
+	
+	Subscription
+		.find()
+		.select('user')
+		.sort('lastLogin')
+		.populate('user')
+		.lean()
+		.then(function(subscriptions) {
+			res.json( subscriptions );
+		})
+		.catch(function(e) {
+			return next(e);
+		});
+});
+
 router.post('/watched', function(req, res, next) {
 	
 	if( ! req.body.video ) {

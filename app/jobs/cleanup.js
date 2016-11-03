@@ -1,11 +1,12 @@
 'use strict';
 
 var moment = require('moment'),
-	_ = require('lodash'),
-	Subscription = require('../models/subscription'),
-	Video = require('../models/video');
+	Subscription = require('models/subscription'),
+	User = require('models/user'),
+	Channels = require('models/channel'),
+	Video = require('models/video');
 	
-exports.removeOldVideos = function(){
+exports.removeOldVideos = function() {
 	
 	return Video.remove({
 		published: { $lte: moment().subtract(1, 'month').toISOString() }
@@ -13,26 +14,39 @@ exports.removeOldVideos = function(){
 	
 };
 
-exports.unwatchVideos = function(user){
-	
-	return Subscription.findOne({
-		user: user
-	})
-	.select('channels unwatched')
-	.populate('unwatched', 'channel')
-	.then(function(sub){
-		
-		if( sub ) {
-			sub.unwatched = _.filter(sub.unwatched, function(video){
-				return sub.channels.indexOf(video.channel) !== -1;
-			});
-		}
-		
-		return sub.save();
-	});
-	
-};
+exports.removeChannels = function() {
 
+	return Subscription.aggregate([
+		{ $project: {
+			_id: 0,
+			channels: 1 }
+		},
+		{ $unwind: '$channels' },
+		{ $group: {
+			_id: 0,
+			channels: {
+				$push: '$channels'
+			}
+		}},
+	])
+	.exec()
+	.then(function(result) {
+		return result && result[0].channels;
+	})
+	.then(function( channels ) {
+		console.log('channels', channels.length);
+
+		return Channels.remove({
+			_id: { $nin: channels }
+		});
+	})
+	.then(function(channels) {
+		console.log('channels removed', channels);
+
+		return 'done';
+	});
+
+};
 
 exports.subscriptionVideosUpgrade = function(){
 
@@ -43,33 +57,35 @@ exports.subscriptionVideosUpgrade = function(){
 		})
 		.each(function(sub) {
 
-			sub.videos = [];
-
-			_.each(sub.unwatched, function(video) {
-
-				sub.videos.push({
-					_id: video
-				});
-
-			});
-
-			_.each(sub.watched, function(video) {
-
-				sub.videos.push({
-					_id: video.video,
-					watched: video.date
-				});
-
-			});
-
-			sub.unwatched = [];
-
-			sub.watched = [];
+			sub.unwatched = sub.watched = undefined;
 
 			return sub.save();
 		})
 		.then(function(){
 			return 'done';
+		});
+
+};
+
+exports.deleteUser = function( users ) {
+
+	return Subscription.find({
+			user: { $in: users }
+		})
+		.select('user')
+		.then(function(subscriptions){
+			return subscriptions;
+		})
+		.each(function(sub) {
+
+			console.log('sub', sub);
+
+			User.findByIdAndRemove( sub.user ).exec();
+
+			return sub.remove();
+		})
+		.then(function(data) {
+			return console.log(data);
 		});
 
 };
