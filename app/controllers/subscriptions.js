@@ -10,7 +10,7 @@ router.get('/', function(req, res, next) {
 	
 	Subscription
 		.findOne({user:req.user._id})
-		.select('channels')
+		.select('channels videos')
 		.lean()
 		.then(function(subscriptions){
 			res.json( subscriptions );

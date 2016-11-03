@@ -192,12 +192,15 @@ var activities = exports.activities = function(channel, nextPageToken){
 		if( items && items.length ) {
 			console.log('activities', items[0].snippet.channelTitle, items.length);
 			
-			var videosId = _.map(items, 'contentDetails.upload.videoId');
-			
+			var videosId = _.map(items, 'contentDetails.upload.videoId'),
+				documents = videosId.map(function(item) {
+					return { _id: item };
+				});
+
 			Subscription.update({
 				channels: channel._id
 			}, {
-				$addToSet: { videos: { $each: videosId } }
+				$addToSet: { videos: { $each: documents } }
 			}, {multi: true}).exec();
 			
 			videos(videosId.join(','));

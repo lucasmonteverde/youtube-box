@@ -1,14 +1,13 @@
 'use strict';
 
 var mongoose = require('mongoose'),
-	dbURI = process.env.MONGODB || process.env.MONGOHQ_URL;
+	dbURI = process.env.MONGODB || process.env.MONGOHQ_URL || process.env.MONGODB_URI;
 
 mongoose.Promise = require('bluebird');
 
 mongoose.connect(dbURI);
 
 mongoose.set('debug', process.env.NODE_ENV === 'development');
-
 
 mongoose.connection
 	.on('connected', function () {

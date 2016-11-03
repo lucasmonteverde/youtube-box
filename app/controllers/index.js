@@ -39,13 +39,11 @@ var getVideos = function( req ) {
 			var news = subscription.videos.filter(function(video) {
 				return !!! video.watched;
 			});
-
-			console.log('watched', news);
-
+			
 			/*news = news.map(function( video ) {
 				return video._id;
 			});*/
-				
+			
 			var query = Video.find();
 			
 			query.where('_id').in( news ); //_.map(subscription.videos, '_id')
