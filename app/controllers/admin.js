@@ -34,10 +34,11 @@ var mostWatchedChannels = function(total) {
 var mostWatchedVideos = function(total) {
 	
 	return Subscription.aggregate([
-		{ $project : { watched : 1, _id : -1 } }, //select fields
-		{ $unwind: '$watched' }, // set subdocument as primary field
+		{ $project : { videos : 1, _id : -1 } }, //select fields
+		{ $unwind: '$videos' }, // set subdocument as primary field
+		{ $match : { 'videos.watched' : { $ne : null } } },
 		{ $group: {
-			_id: '$watched.video',
+			_id: '$videos._id',
 			count: { $sum: 1  }
 		}},
 		{ $match : { count : { $gt : 1} } },
@@ -46,9 +47,11 @@ var mostWatchedVideos = function(total) {
 	])
 	.exec()
 	.then(function (videos) {
+		console.log(videos);
 		return Video.populate(videos, {path: '_id'});
 	})
 	.then(function (videos) {
+		console.log(videos);
 		return Channel.populate(videos, {path: '_id.channel'});
 	});
 };

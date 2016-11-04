@@ -9,9 +9,59 @@ var moment = require('moment'),
 exports.removeOldVideos = function() {
 	
 	return Video.remove({
-		published: { $lte: moment().subtract(1, 'month').toISOString() }
+		published: { $lte: moment().subtract(1, 'year').toISOString() }
 	});
+
+	/*return Video
+		.find({
+			description: { $ne: null }
+		})
+		//.limit(100000)
+		//.skip(200000)
+		.select('description')
+		.then(function(videos) {
+			return videos;
+		})
+		.each(function(video) {
+
+			video.description = video.description && video.description.substr(0, 100) || '';
+
+			return video.save();
+		});*/
 	
+};
+
+exports.removeVideos = function() {
+
+	return Subscription.aggregate([
+		{ $project: {
+			_id: 0,
+			channels: 1 }
+		},
+		{ $unwind: '$channels' },
+		{ $group: {
+			_id: 0,
+			channels: {
+				$push: '$channels'
+			}
+		}},
+	])
+	.then(function(result) {
+		return result && result[0].channels;
+	})
+	.then(function( channels ) {
+		console.log('channels', channels.length);
+
+		return Video.remove({
+			channel: { $nin: channels }
+		});
+	})
+	.then(function() {
+		console.log('videos removed');
+
+		return 'done';
+	});
+
 };
 
 exports.removeChannels = function() {

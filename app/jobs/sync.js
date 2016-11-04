@@ -166,7 +166,7 @@ var activities = exports.activities = function(channel, nextPageToken){
 		channelId: channel._id,
 		part: 'snippet,contentDetails',
 		fields: 'nextPageToken,items(snippet,contentDetails)',
-		publishedAfter: channel.updatedDate || moment().subtract(1, 'month').valueOf(),
+		publishedAfter: channel.updatedDate ||moment().subtract(1, 'month').toISOString(),
 		pageToken: nextPageToken
 	}, activities, channel)
 	.filter(function(item){
@@ -176,7 +176,7 @@ var activities = exports.activities = function(channel, nextPageToken){
 		
 		Video.findByIdAndUpdate(item.contentDetails.upload.videoId, {
 			title: item.snippet.title,
-			description: item.snippet.description,
+			description: item.snippet.description.substr(0, 250),
 			published: item.snippet.publishedAt,
 			channel: item.snippet.channelId,
 		}, { upsert: true }).exec();

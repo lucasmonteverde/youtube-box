@@ -1,6 +1,30 @@
 $(document).ready(function(){
 
 	'use strict';
+
+	var API = {
+		
+		watched: function(ids, $box){
+			
+			return $.post('/subscriptions/watched', {
+				video: ids
+			})
+			.done(function(res){
+				
+				if( res && res.status ) {
+					$box.fadeOut(function(){
+						$box.remove();
+					});
+				}
+				
+				console.log(res);
+			})
+			.fail(function(){
+				$box.removeClass('watched');
+			});
+			
+		}
+	};
 	
 	$('.btn-login').click(function(e){
 		e.preventDefault();
@@ -110,28 +134,6 @@ $(document).ready(function(){
 	});*/
 	
 	
-	var API = {
-		
-		watched: function(ids, $box){
-			
-			return $.post('/subscriptions/watched', {
-				video: ids
-			})
-			.done(function(res){
-				
-				if( res && res.status ) {
-					$box.fadeOut(function(){
-						$box.remove();
-					});
-				}
-				
-				console.log(res);
-			})
-			.fail(function(){
-				$box.removeClass('watched');
-			});
-			
-		}
-	};
+	
 	
 });

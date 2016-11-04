@@ -12,31 +12,11 @@ var SubscriptionSchema = new Schema({
 		type: String,
 		ref: 'Channel'
 	}],
-	unwatched: [{
-		type: String,
-		ref: 'Video'
-	}],
-	watched: [{
-		_id: false,
-		select: false,
-		date: {
-			type: Date,
-			default: Date.now()
-		},
-		video: {
-			type: String,
-			ref: 'Video'
-		}
-	}],
 	videos: [{
 		_id: String,
 		select: false,
 		watched: Date
 	}]
-	/*watched: [{
-		type: String,
-		ref: 'Video'
-	}]*/
 }, {collection: 'youtube-subscriptions'});
 
 SubscriptionSchema.index({ user: 1 });
