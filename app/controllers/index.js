@@ -36,7 +36,7 @@ var getVideos = function( req ) {
 				
 			data.channels = subscription.channels;
 
-			var news = subscription.videos.filter(function(video) {
+			var news = ( subscription.videos || [] ).filter(function(video) {
 				return !!! video.watched;
 			});
 			
