@@ -12,13 +12,13 @@ var express = require('express'),
 	hbs = require('express-handlebars'),
 	session = require('express-session'),
 	RedisStore = require('connect-redis')(session),
-	cache = require('./app/config/cache'),
-	passport = require('./app/config/passport'),
+	cache = require('config/cache'),
+	passport = require('config/passport'),
 	fs = require('fs'),
 	app = express();
 	
-require('./app/config/db');
-require('./app/config/cron');
+require('config/db');
+require('config/cron');
 
 app.engine('html', hbs({
 	defaultLayout: 'main',
@@ -62,13 +62,15 @@ app.use(function(req, res, next) {
 	next();
 });
 
-fs.readdirSync('./app/controllers').forEach(function (controller) {
-	app.use('/' + controller.replace('.js', '').replace('index', ''), require('./app/controllers/' + controller));
+fs.readdirSync('./app/controllers').forEach(function (ctrl) {
+	app.use('/' + ctrl.replace(/\.js|index/g, ''), require('controllers/' + ctrl));
 });
 
-app.use(rollbar.errorHandler( process.env.ROLLBAR_ACCESS_TOKEN, {
-	codeVersion: require('./package.json').version
-}));
+if ( 'development' !== app.get('env') ) {
+	app.use(rollbar.errorHandler( process.env.ROLLBAR_ACCESS_TOKEN, {
+		codeVersion: require('./package.json').version
+	}));
+}
 
 app.use(function(req, res, next) {
 	var err = new Error('Not Found');
@@ -79,9 +81,9 @@ app.use(function(req, res, next) {
  /*jshint unused:false*/
 app.use(function(err, req, res, next) {
 	
-	console.error( err.stack );
-	
-	res.status( err.status || 500 );
+	if ( ! err.status || err.status >= 500 ) {
+		console.error( 'App Error', err.message, err.stack );
+	}
 	
 	var response = {
 		status: false,
@@ -89,7 +91,7 @@ app.use(function(err, req, res, next) {
 		error: app.get('env') !== 'production' ? err : {}
 	};
 	
-	res.format({
+	res.status( err.status || 500 ).format({
 		html: function(){
 			response.layout = false;
 			res.render(err.status === 404 ? '404' : 'error', response);
