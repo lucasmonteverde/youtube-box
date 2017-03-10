@@ -2,9 +2,9 @@
 
 var router = require('express').Router(),
 	passport = require('passport'),
-	helpers = require('../config/helpers'),
-	Video = require('../models/video'),
-	Subscription = require('../models/subscription');
+	helpers = require('config/helpers'),
+	Video = require('models/video'),
+	Subscription = require('models/subscription');
 
 router.get('/youtube', passport.authenticate('youtube'));
 

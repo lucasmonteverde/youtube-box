@@ -1,9 +1,9 @@
 'use strict';
 
 var router = require('express').Router(),
-	helpers = require('../config/helpers'),
-	Sync = require('../jobs/sync'),
-	Cleanup = require('../jobs/cleanup');
+	helpers = require('config/helpers'),
+	Sync = require('jobs/sync'),
+	Cleanup = require('jobs/cleanup');
 	
 router.all('*', helpers.isLoggedIn);
 

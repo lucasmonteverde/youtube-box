@@ -3,10 +3,10 @@
 var router = require('express').Router(),
 	Promise = require('bluebird'),
 	Feed = require('feed'),
-	cache = require('../config/cache').cache,
-	User = require('../models/user'),
-	Subscription = require('../models/subscription'),
-	Video = require('../models/video');
+	cache = require('config/cache').cache,
+	User = require('models/user'),
+	Subscription = require('models/subscription'),
+	Video = require('models/video');
 	
 Promise.promisifyAll(cache);
 

@@ -5,11 +5,11 @@ var request = require('request-promise'),
 	moment = require('moment'),
 	refresh = require('passport-oauth2-refresh'),
 	_ = require('lodash'),
-	API = require('../libs/api'),
-	User = require('../models/user'),
-	Subscription = require('../models/subscription'),
-	Channel = require('../models/channel'),
-	Video = require('../models/video');
+	API = require('libs/api'),
+	User = require('models/user'),
+	Subscription = require('models/subscription'),
+	Channel = require('models/channel'),
+	Video = require('models/video');
 	
 //require('request-debug')(request);
 Promise.promisifyAll(refresh);

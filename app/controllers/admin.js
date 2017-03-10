@@ -2,12 +2,12 @@
 
 var router = require('express').Router(),
 	Promise = require('bluebird'),
-	helpers = require('../config/helpers'),
-	Cleanup = require('../jobs/cleanup'),
-	User = require('../models/user'),
-	Channel = require('../models/channel'),
-	Video = require('../models/video'),
-	Subscription = require('../models/subscription');
+	helpers = require('config/helpers'),
+	Cleanup = require('jobs/cleanup'),
+	User = require('models/user'),
+	Channel = require('models/channel'),
+	Video = require('models/video'),
+	Subscription = require('models/subscription');
 
 router.all('*', helpers.isAdmin);
 

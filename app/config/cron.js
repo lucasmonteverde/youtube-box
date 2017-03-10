@@ -1,7 +1,7 @@
 'use strict';
 
 var CronJob = require('cron').CronJob,
-	Sync = require('../jobs/sync');
+	Sync = require('jobs/sync');
 	
 new CronJob('00 */30 * * * *', function() {
 	

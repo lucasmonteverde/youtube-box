@@ -1,8 +1,8 @@
 'use strict';
 
 var router = require('express').Router(),
-	helpers = require('../config/helpers'),
-	Subscription = require('../models/subscription');
+	helpers = require('config/helpers'),
+	Subscription = require('models/subscription');
 
 router.all('*', helpers.isLoggedIn);
 

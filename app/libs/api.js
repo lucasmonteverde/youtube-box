@@ -16,7 +16,7 @@ module.exports = function(method, filter, callback, callbackArgs) {
 		gzip: true
 	};
 	
-	if ( filter.mine && callbackArgs.youtube ) {
+	if ( filter.mine && callbackArgs && callbackArgs.youtube ) {
 		params.auth = {
 			bearer: callbackArgs.youtube.accessToken
 		};

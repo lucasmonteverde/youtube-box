@@ -3,8 +3,8 @@
 var router = require('express').Router(),
 	moment = require('moment'),
 	_ = require('lodash'),
-	Subscription = require('../models/subscription'),
-	Video = require('../models/video');
+	Subscription = require('models/subscription'),
+	Video = require('models/video');
 
 var getVideos = function( req ) {
 

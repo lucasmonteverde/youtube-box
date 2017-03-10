@@ -3,8 +3,8 @@
 var passport = require('passport'),
 	YoutubeStrategy = require('passport-youtube-v3').Strategy,
 	refresh = require('passport-oauth2-refresh'),
-	Sync = require('../jobs/sync'),
-	User = require('../models/user');
+	Sync = require('jobs/sync'),
+	User = require('models/user');
 	
 var adminUsers = ['UCugDN9_9V-RKDB_ilYYE4RA'];
 	
