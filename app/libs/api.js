@@ -15,8 +15,8 @@ module.exports = function(method, filter, callback, callbackArgs) {
 		json: true,
 		gzip: true
 	};
-	
-	if ( filter.mine && callbackArgs && callbackArgs.youtube ) {
+
+	if ( callbackArgs && callbackArgs.youtube && filter.mine ) {
 		params.auth = {
 			bearer: callbackArgs.youtube.accessToken
 		};
@@ -40,7 +40,7 @@ module.exports = function(method, filter, callback, callbackArgs) {
 		return data.items;
 	})
 	.catch(function(e){
-		console.error('request', e.error);
+		console.error('request', e.error, callbackArgs);
 		
 		return [];
 	});

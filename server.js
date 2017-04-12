@@ -1,7 +1,5 @@
 'use strict';
 
-//require('newrelic');
-
 var express = require('express'),
 	logger = require('morgan'),
 	rollbar = require('rollbar'),
@@ -31,7 +29,9 @@ app.engine('html', hbs({
 app.set('views', 'app/views');
 app.set('view engine', 'html');
 
-app.use(logger('dev'));
+logger.format('prod', ':method :url :status - :response-time ms ":referrer" ":user-agent"');
+app.use(logger(app.get('env') === 'production' ? 'prod' : 'dev'));
+
 app.use(helmet());
 app.use(compression());
 app.use(express.static('dist'));
