@@ -20,43 +20,39 @@ var refreshAccessToken = exports.refreshAccessToken = function(user){
 		return Promise.resolve(user);
 	}
 	
-	if( ! user.youtube.refreshToken ) {
-		
-		user.status = false;
-		
-		user.save();
-		
-		return Promise.reject(new Error('refreshToken is not defined'));
-	}
-	
 	return refresh
 		.requestNewAccessTokenAsync('youtube', user.youtube.refreshToken)
 		.then(function(accessToken){
-			//console.log( 'accessToken', accessToken );
+			console.log( 'accessToken', accessToken );
 			
 			user.youtube.accessToken = accessToken;
 			user.youtube.accessTokenUpdate = new Date().toISOString();
 			
 			user.markModified('youtube');
 			
-			user.save();
-			
-			return user;
+			return user.save();
 		})
 		.catch(function(err) {
-			console.error(err);
+			console.error('Refresh Error', err, user);
+
+			if( err.statusCode === 400 ) { //Token has been expired or revoked.
+				user.status = false;
+				user.save();
+			}
 		});
 };
 
 var subscriptions = exports.subscriptions = function(user, nextPageToken){
 	
+	if( ! user ) return;
+
 	return API('subscriptions', {
 		mine: true,
 		part: 'snippet',
 		fields: 'nextPageToken,items(snippet)',
 		pageToken: nextPageToken
 	}, subscriptions, user)
-	.each(function(item){
+	/*.each(function(item){
 		
 		Channel.findByIdAndUpdate(item.snippet.resourceId.channelId, {
 			title: item.snippet.title,
@@ -64,7 +60,7 @@ var subscriptions = exports.subscriptions = function(user, nextPageToken){
 			thumbnail: item.snippet.thumbnails.default.url
 		}, { upsert: true }).exec();
 		
-	})
+	})*/
 	.then(function(items){
 		
 		if( items && items.length ) {
@@ -84,7 +80,7 @@ var subscriptions = exports.subscriptions = function(user, nextPageToken){
 		
 	})
 	.catch(function(err) {
-		console.error(err);
+		console.error('Error:subscriptions', err);
 	});
 	
 };
@@ -93,20 +89,15 @@ exports.updateSubscriptions = function(){
 	
 	return User
 			.find({status: true})
-			.select('youtube')
+			.select('email youtube')
 			.then(function(users){
 				return users;
 			})
 			.each(function(user){
-				
-				return refreshAccessToken(user)
-					.then(function(refreshUser){
-						return subscriptions(refreshUser);
-					});
-					
+				return refreshAccessToken(user).then(subscriptions);
 			})
 			.catch(function(err) {
-				console.error(err);
+				console.error('Error:updateSubscriptions', err);
 			});
 };
 
@@ -156,7 +147,7 @@ var videos = exports.videos = function(videoId, nextPageToken){
 		
 	})
 	.catch(function(err) {
-		console.error(err);
+		console.error('Error:videos', err);
 	});
 };
 
@@ -209,7 +200,7 @@ var activities = exports.activities = function(channel, nextPageToken){
 		channel = null;
 	})
 	.catch(function(err) {
-		console.error(err);
+		console.error('Error:activities', err);
 	});
 };
 
@@ -225,7 +216,7 @@ exports.updateChannels = function(){
 				return activities(channel);
 			})
 			.catch(function(err) {
-				console.error(err);
+				console.error('Error:updateChannels', err);
 			});
 };
 
@@ -245,7 +236,7 @@ exports.updateVideos = function(){
 		videos(ids.join(','));
 	})
 	.catch(function(err) {
-		console.error(err);
+		console.error('Error:updateVideos', err);
 	});
 };
 
@@ -269,6 +260,6 @@ exports.getUserEmail = function(user){
 		}
 	})
 	.catch(function(e){
-		console.error('request', e.error);
+		console.error('Error:getUserEmail', e.error);
 	});
 };

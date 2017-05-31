@@ -7,10 +7,10 @@ if ( 'production' !== process.env.NODE_ENV ) {
 	require('dotenv').config( { silent: true } );
 }
 
-require('./app/config/db'),
-require('./app/config/passport');
+require('config/db'),
+require('config/passport');
 
-var Sync = require('./app/jobs/sync');
+var Sync = require('jobs/sync');
 	
 Sync.updateSubscriptions();
 

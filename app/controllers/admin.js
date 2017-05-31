@@ -101,9 +101,29 @@ router.get('/cleanup/videos', function(req, res){
 	
 });
 
-router.get('/cleanup/watched', function(req, res){
+router.get('/cleanup/user/:id', function(req, res){
 	
-	Cleanup.migrationWatched(req.user._id).then(function(){
+	Cleanup.deleteUser(req.params.id).then(function(){
+		
+		res.json('done');
+		
+	});
+	
+});
+
+router.get('/cleanup/subscriptions', function(req, res){
+	
+	Cleanup.removeVideos().then(function(){
+		
+		res.json('done');
+		
+	});
+	
+});
+
+router.get('/cleanup/channels', function(req, res){
+	
+	Cleanup.removeChannels().then(function(){
 		
 		res.json('done');
 		

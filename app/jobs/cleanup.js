@@ -11,23 +11,6 @@ exports.removeOldVideos = function() {
 	return Video.remove({
 		published: { $lte: moment().subtract(1, 'year').toISOString() }
 	});
-
-	/*return Video
-		.find({
-			description: { $ne: null }
-		})
-		//.limit(100000)
-		//.skip(200000)
-		.select('description')
-		.then(function(videos) {
-			return videos;
-		})
-		.each(function(video) {
-
-			video.description = video.description && video.description.substr(0, 100) || '';
-
-			return video.save();
-		});*/
 	
 };
 
@@ -90,30 +73,11 @@ exports.removeChannels = function() {
 			_id: { $nin: channels }
 		});
 	})
-	.then(function(channels) {
-		console.log('channels removed', channels);
+	.then(function() {
+		console.log('channels removed');
 
 		return 'done';
 	});
-
-};
-
-exports.subscriptionVideosUpgrade = function(){
-
-	return Subscription.find()
-		.select('watched unwatched')
-		.then(function(subscriptions){
-			return subscriptions;
-		})
-		.each(function(sub) {
-
-			sub.unwatched = sub.watched = undefined;
-
-			return sub.save();
-		})
-		.then(function(){
-			return 'done';
-		});
 
 };
 

@@ -5,7 +5,7 @@ var request = require('request-promise');
 module.exports = function(method, filter, callback, callbackArgs) {
 	
 	//console.time('request');
-	
+
 	filter.prettyPrint = false;
 	filter.maxResults = 50;
 	
@@ -21,6 +21,7 @@ module.exports = function(method, filter, callback, callbackArgs) {
 			bearer: callbackArgs.youtube.accessToken
 		};
 	} else {
+		//filter.mine = false;
 		filter.key = process.env.YOUTUBE_API_KEY;
 	}
 	
