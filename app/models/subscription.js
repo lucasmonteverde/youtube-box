@@ -6,7 +6,8 @@ var mongoose	= require('mongoose'),
 var SubscriptionSchema = new Schema({
 	user: {
 		type: Schema.Types.ObjectId,
-		ref: 'User'
+		ref: 'User',
+		unique: true
 	},
 	channels: [{
 		type: String,
@@ -18,7 +19,5 @@ var SubscriptionSchema = new Schema({
 		watched: Date
 	}]
 }, {collection: 'youtube-subscriptions'});
-
-SubscriptionSchema.index({ user: 1 });
 
 module.exports = mongoose.model('Subscription', SubscriptionSchema);

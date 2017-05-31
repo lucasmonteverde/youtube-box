@@ -39,8 +39,7 @@ var buildFeed = function( req ){
 				author: {
 					name: 'Youtube Box',
 					link: 'http://youtube-box.herokuapp.com'
-				},
-				feed: true
+				}
 			});
 			
 			return Video.find({channel: {$in: subscription.channels}})
@@ -71,7 +70,7 @@ var buildFeed = function( req ){
 		})
 		.then(function(){
 			user = null;
-			return feed.render();
+			return feed.rss2();
 		});
 	
 };

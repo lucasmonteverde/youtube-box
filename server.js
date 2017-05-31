@@ -2,7 +2,6 @@
 
 var express = require('express'),
 	logger = require('morgan'),
-	rollbar = require('rollbar'),
 	cookieParser = require('cookie-parser'),
 	bodyParser = require('body-parser'),
 	compression = require('compression'),
@@ -17,6 +16,12 @@ var express = require('express'),
 	
 require('config/db');
 require('config/cron');
+
+var rollbar = require('rollbar').init({
+	accessToken: process.env.ROLLBAR_ACCESS_TOKEN,
+	handleUncaughtExceptions: true,
+	codeVersion: require('./package.json').version
+});
 
 app.engine('html', hbs({
 	defaultLayout: 'main',
@@ -83,6 +88,7 @@ app.use(function(err, req, res, next) {
 	
 	if ( ! err.status || err.status >= 500 ) {
 		console.error( 'App Error', err.message, err.stack );
+		rollbar.handleError(err, req);
 	}
 	
 	var response = {
