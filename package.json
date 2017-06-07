@@ -1,7 +1,7 @@
 {
   "name": "youtube-box",
   "description": "A Youtube Subscriptions Box",
-  "version": "0.8.4",
+  "version": "0.8.5",
   "author": "Lucas Monteverde",
   "license": "MIT",
   "main": "server.js",
@@ -23,11 +23,11 @@
     "express": "^4.15.3",
     "express-handlebars": "^3.0.0",
     "express-session": "^1.15.3",
-    "feed": "^1.0.2",
+    "feed": "^1.1.0",
     "helmet": "^3.6.1",
     "lodash": "^4.17.4",
     "moment": "^2.18.1",
-    "mongoose": "^4.10.4",
+    "mongoose": "^4.10.5",
     "morgan": "^1.8.2",
     "passport": "^0.3.2",
     "passport-oauth2-refresh": "^1.0.0",
@@ -36,7 +36,7 @@
     "request": "^2.81.0",
     "request-debug": "^0.2.0",
     "request-promise": "^4.2.1",
-    "rollbar": "^2.0.2"
+    "rollbar": "^2.0.4"
   },
   "devDependencies": {
     "browser-sync": "^2.18.12",
