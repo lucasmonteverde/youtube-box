@@ -9,14 +9,16 @@ mongoose.connect(dbURI, {
 	server: {
 		auto_reconnect: true, 
 		socketOptions: {
-			keepAlive: 1,
-			connectTimeoutMS: 30000
+			keepAlive: 300000,
+			connectTimeoutMS: 300000,
+			socketTimeoutMS: 300000
 		} 
 	},
- 	replset: { 
+	replset: { 
 		socketOptions: {
-			keepAlive: 1,
-			connectTimeoutMS: 30000
+			keepAlive: 300000,
+			connectTimeoutMS: 300000,
+			socketTimeoutMS: 300000
 		}
 	}
 });
