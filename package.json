@@ -1,13 +1,17 @@
 {
   "name": "youtube-box",
   "description": "A Youtube Subscriptions Box",
-  "version": "0.8.5",
+  "version": "0.8.6",
   "author": "Lucas Monteverde",
   "license": "MIT",
   "main": "server.js",
   "repository": {
     "type": "git",
     "url": "git://github.com/lucasmonteverde/youtube-box.git"
+  },
+  "scripts": {
+    "start": "node --optimize_for_size --max_old_space_size=460 --gc_interval=100 server.js",
+    "heroku-postbuild": "gulp deploy"
   },
   "engines": {
     "node": "~6.x.x"
@@ -27,7 +31,7 @@
     "helmet": "^3.6.1",
     "lodash": "^4.17.4",
     "moment": "^2.18.1",
-    "mongoose": "^4.10.5",
+    "mongoose": "^4.10.6",
     "morgan": "^1.8.2",
     "passport": "^0.3.2",
     "passport-oauth2-refresh": "^1.0.0",
@@ -40,7 +44,7 @@
   },
   "devDependencies": {
     "browser-sync": "^2.18.12",
-    "del": "^2.2.2",
+    "del": "^3.0.0",
     "dotenv": "^4.0.0",
     "gulp": "^3.9.1",
     "gulp-autoprefixer": "^4.0.0",

@@ -44,7 +44,7 @@ gulp.task('styles', function () {
 		.pipe($.plumber())
 		//.pipe($.newer({dest: paths.dest.styles + 'style.css', ext: '.css'}))
 		.pipe($.sass({
-			outputStyle: 'compressed'
+			outputStyle: $.util.env.production ? 'compressed' : 'nested',
 		}).on('error', $.sass.logError))
 		.pipe($.autoprefixer())
 		.pipe(gulp.dest(paths.dest.styles));
@@ -55,7 +55,7 @@ gulp.task('images', function () {
 		.pipe($.plumber())
 		.pipe($.newer(paths.dest.images))
 		.pipe($.imagemin({
-			optimizationLevel: 5,
+			optimizationLevel: $.util.env.production ? 5 : 1,
 			progressive: true,
 			interlaced: true
 		}))
@@ -75,9 +75,6 @@ gulp.task('clean', function () {
 gulp.task('serve', ['watch'], function () {
 	browserSync({
 		files: [ 'app/**/*.html', 'dist/**', '!dist/**/*.map' ],
-		/* server:{
-			baseDir: ['dist','./']
-		}, */
 		proxy: 'localhost:3000',
 		port: 3001,
 		open: !$.util.env.no
@@ -86,16 +83,13 @@ gulp.task('serve', ['watch'], function () {
 
 gulp.task('express', function () {
 	return $.nodemon({ 
-				script: 'server.js', 
-				ext: 'html js', 
-				ignore: ['src/**', 'dist/**', 'node_modules/**']
-				//tasks: ['lint']
-			})
-			//.on('change', ['lint'])
-			.on('restart', function () {
-				gulp.start('lint');
-				console.log('restarted!');
-			});
+		script: 'server.js', 
+		ext: 'html js', 
+		watch: ['app', 'server.js'],
+	})
+	.on('restart', function () {
+		console.log('restarted!');
+	});
 })
 
 gulp.task('watch', ['scripts', 'styles', 'images', 'extras'], function() {
@@ -107,4 +101,10 @@ gulp.task('watch', ['scripts', 'styles', 'images', 'extras'], function() {
 
 gulp.task('default', ['clean', 'express'], function () {
 	gulp.start('serve');
+});
+
+gulp.task('deploy', ['clean'], () => {
+	$.util.env.production = true;
+
+	gulp.start(['scripts', 'styles', 'images', 'extras']);
 });

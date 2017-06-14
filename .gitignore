@@ -1,5 +1,9 @@
-*.log
-
 node_modules
 
+dist
+
+.log
+
 .env
+
+.vscode
