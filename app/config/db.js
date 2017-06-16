@@ -8,6 +8,8 @@ mongoose.Promise = require('bluebird');
 mongoose.connect(dbURI, {
 	server: {
 		auto_reconnect: true, 
+		reconnectInterval: 10000,
+		reconnectTries: 30,
 		socketOptions: {
 			keepAlive: 300000,
 			connectTimeoutMS: 300000,
