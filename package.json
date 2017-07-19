@@ -1,7 +1,7 @@
 {
   "name": "youtube-box",
   "description": "A Youtube Subscriptions Box",
-  "version": "0.8.6",
+  "version": "0.8.7",
   "author": "Lucas Monteverde",
   "license": "MIT",
   "main": "server.js",
@@ -20,27 +20,27 @@
     "bluebird": "^3.5.0",
     "body-parser": "^1.17.2",
     "cacheman-redis": "^1.1.2",
-    "compression": "^1.6.2",
+    "compression": "^1.7.0",
     "connect-redis": "^3.3.0",
     "cookie-parser": "^1.4.3",
     "cron": "^1.2.1",
     "express": "^4.15.3",
     "express-handlebars": "^3.0.0",
-    "express-session": "^1.15.3",
+    "express-session": "^1.15.4",
     "feed": "^1.1.0",
     "helmet": "^3.6.1",
     "lodash": "^4.17.4",
     "moment": "^2.18.1",
-    "mongoose": "^4.10.6",
+    "mongoose": "^4.11.3",
     "morgan": "^1.8.2",
     "passport": "^0.3.2",
     "passport-oauth2-refresh": "^1.0.0",
-    "passport-youtube-v3": "^2.0.0",
+    "passport-youtube-v3": "^2.1.0",
     "redis": "^2.7.1",
     "request": "^2.81.0",
     "request-debug": "^0.2.0",
     "request-promise": "^4.2.1",
-    "rollbar": "^2.0.4"
+    "rollbar": "^2.1.0"
   },
   "devDependencies": {
     "browser-sync": "^2.18.12",
@@ -57,7 +57,7 @@
     "gulp-sass": "^3.1.0",
     "gulp-uglifyjs": "^0.6.2",
     "gulp-util": "^3.0.8",
-    "jshint": "^2.9.4",
+    "jshint": "^2.9.5",
     "jshint-stylish": "^2.2.1"
   }
 }

@@ -4,7 +4,7 @@ process.env.NODE_PATH = __dirname + '/app';
 require('module').Module._initPaths();
 
 if ( 'production' !== process.env.NODE_ENV ) {
-	require('dotenv').config( { silent: true } );
+	require('dotenv').config({ silent: true });
 }
 
 require('config/db'),

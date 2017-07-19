@@ -6,23 +6,7 @@ var mongoose = require('mongoose'),
 mongoose.Promise = require('bluebird');
 
 mongoose.connect(dbURI, {
-	server: {
-		auto_reconnect: true, 
-		reconnectInterval: 10000,
-		reconnectTries: 30,
-		socketOptions: {
-			keepAlive: 300000,
-			connectTimeoutMS: 300000,
-			socketTimeoutMS: 300000
-		} 
-	},
-	replset: { 
-		socketOptions: {
-			keepAlive: 300000,
-			connectTimeoutMS: 300000,
-			socketTimeoutMS: 300000
-		}
-	}
+	useMongoClient: true
 });
 
 mongoose.set('debug', process.env.NODE_ENV === 'development');
