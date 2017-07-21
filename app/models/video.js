@@ -6,9 +6,15 @@ var schema = new mongoose.Schema({
 	_id: String,
 	title: String,
 	description: String,
-	published: Date,
+	published: {
+		type: Date,
+		index: 1
+	},
 	duration: Number,
-	views: Number,
+	views: {
+		type: Number,
+		index: 1
+	},
 	likes: Number,
 	dislikes: Number,
 	definition: String,

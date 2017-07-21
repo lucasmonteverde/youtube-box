@@ -11,7 +11,6 @@ var router = require('express').Router(),
 
 router.all('*', helpers.isAdmin);
 
-
 var mostWatchedChannels = function(total) {
 	
 	return Subscription.aggregate([

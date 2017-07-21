@@ -2,21 +2,22 @@
 
 var router = require('express').Router(),
 	helpers = require('config/helpers'),
-	Sync = require('jobs/sync'),
+	Subscriptions = require('jobs/subscription').subscriptions,
+	Channels = require('jobs/channel').channels,
 	Cleanup = require('jobs/cleanup');
 	
 router.all('*', helpers.isLoggedIn);
 
 router.get('/subscriptions', function(req, res) {
 	
-	Sync.subscriptions(req.user);
+	Subscriptions(req.user);
 	
 	res.send('subscriptions done');
 });
 
 router.get('/channels', function(req, res) {
 	
-	Sync.updateChannels();
+	Channels();
 	
 	res.send('channels done');
 });

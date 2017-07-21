@@ -33,7 +33,7 @@ function refreshAccessToken(user) {
 				user.save();
 			}
 		});
-};
+}
 
 function getUserEmail(user) {
 	request({
@@ -54,6 +54,6 @@ function getUserEmail(user) {
 	.catch(function(e){
 		console.error('Error:getUserEmail', e.error);
 	});
-};
+}
 
 module.exports = { getUserEmail, refreshAccessToken };

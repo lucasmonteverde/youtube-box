@@ -69,8 +69,7 @@ var buildFeed = function( req ){
 			
 		})
 		.then(function(){
-			user = null;
-			return feed.rss2();
+			return feed.rss2()
 		});
 	
 };

@@ -37,7 +37,6 @@ router.get('/profile/:id', helpers.isLoggedIn, function(req, res, next){
 			data.subscription = subscription;
 				
 			return Video.count({channel: {$in: subscription.channels}});
-			
 		})
 		.then(function(videos){
 			

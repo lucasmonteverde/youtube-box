@@ -52,7 +52,7 @@ router.post('/watched', function(req, res, next) {
 			'videos._id': { $in: videosId }
 		}, { $set: {
 			'videos.$.watched': Date.now()
-		}})
+		}}, { multi: true })
 		.then(function(){
 			
 			res.json({

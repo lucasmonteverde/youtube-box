@@ -15,7 +15,6 @@ var express = require('express'),
 	app = express();
 	
 require('config/db');
-//require('config/cron');
 
 var rollbar = require('rollbar').init({
 	accessToken: process.env.ROLLBAR_ACCESS_TOKEN,
@@ -70,12 +69,6 @@ app.use(function(req, res, next) {
 fs.readdirSync('./app/controllers').forEach(function (ctrl) {
 	app.use('/' + ctrl.replace(/\.js|index/g, ''), require('controllers/' + ctrl));
 });
-
-if ( 'development' !== app.get('env') ) {
-	app.use(rollbar.errorHandler( process.env.ROLLBAR_ACCESS_TOKEN, {
-		codeVersion: require('./package.json').version
-	}));
-}
 
 app.use(function(req, res, next) {
 	var err = new Error('Not Found');

@@ -39,7 +39,7 @@ function videos(videoId, nextPageToken) {
 	.catch(function(err) {
 		console.error('Error:videos', err);
 	});
-};
+}
 
 function run() {
 	
@@ -57,6 +57,6 @@ function run() {
 	.catch(function(err) {
 		console.error('Error:updateVideos', err);
 	});
-};
+}
 
 module.exports = { run, videos };

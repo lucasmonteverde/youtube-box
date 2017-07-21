@@ -37,7 +37,7 @@ function subscriptions(user, nextPageToken) {
 		console.error('Error:subscriptions', err);
 	});
 	
-};
+}
 
 function run() {
 	
@@ -53,6 +53,6 @@ function run() {
 		.catch(function(err) {
 			console.error('Error:updateSubscriptions', err);
 		});
-};
+}
 
 module.exports = { run, subscriptions };

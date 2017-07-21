@@ -49,7 +49,7 @@ function activities(channel, nextPageToken) {
 	.catch(function(err) {
 		console.error('Error:activities', err);
 	});
-};
+}
 
 function run() {
 	
@@ -65,6 +65,6 @@ function run() {
 		.catch(function(err) {
 			console.error('Error:updateChannels', err);
 		});
-};
+}
 
 module.exports = { run };

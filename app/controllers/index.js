@@ -1,10 +1,11 @@
 'use strict';
 
 var router = require('express').Router(),
-	moment = require('moment'),
 	_ = require('lodash'),
-	Subscription = require('models/subscription'),
-	Video = require('models/video');
+	moment = require('moment'),
+	mongoose = require('mongoose'),
+	Subscription = mongoose.model('Subscription'),
+	Video = mongoose.model('Video');
 
 var getVideos = function( req ) {
 
@@ -15,10 +16,7 @@ var getVideos = function( req ) {
 	
 	return Subscription
 		.findOne({
-			user: req.user._id,
-			/*videos: { $elemMatch: {
-				watched: { $eq: null }
-			} }*/
+			user: req.user._id
 		})
 		.select('channels videos')
 		.populate({
@@ -137,7 +135,6 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/watched', function(req, res, next) {
-	
 	
 	Subscription
 		.findOne({user:req.user._id})
