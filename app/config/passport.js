@@ -3,7 +3,7 @@
 var passport = require('passport'),
 	YoutubeStrategy = require('passport-youtube-v3').Strategy,
 	refresh = require('passport-oauth2-refresh'),
-	Sync = require('jobs/sync'),
+	UserControl = require('libs/user'),
 	User = require('models/user');
 	
 var adminUsers = ['UCugDN9_9V-RKDB_ilYYE4RA'];
@@ -76,7 +76,7 @@ var youtube = new YoutubeStrategy({
 				if (err) console.error(err);
 					
 				if( ! user.email ) {
-					Sync.getUserEmail(user);
+					UserControl.getUserEmail(user);
 				}
 				
 				return done(err, user);

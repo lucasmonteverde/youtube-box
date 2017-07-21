@@ -1,9 +1,9 @@
 'use strict';
 
-var mongoose	= require('mongoose'),
-	Schema		= mongoose.Schema;
+var mongoose = require('mongoose'),
+	Schema = mongoose.Schema;
 
-var SubscriptionSchema = new Schema({
+var schema = new Schema({
 	user: {
 		type: Schema.Types.ObjectId,
 		ref: 'User',
@@ -18,6 +18,8 @@ var SubscriptionSchema = new Schema({
 		select: false,
 		watched: Date
 	}]
-}, {collection: 'youtube-subscriptions'});
+}, {
+	collection: 'youtube-subscriptions'
+});
 
-module.exports = mongoose.model('Subscription', SubscriptionSchema);
+module.exports = mongoose.model('Subscription', schema);

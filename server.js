@@ -15,7 +15,7 @@ var express = require('express'),
 	app = express();
 	
 require('config/db');
-require('config/cron');
+//require('config/cron');
 
 var rollbar = require('rollbar').init({
 	accessToken: process.env.ROLLBAR_ACCESS_TOKEN,

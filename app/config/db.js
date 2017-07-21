@@ -1,12 +1,16 @@
 'use strict';
 
-var mongoose = require('mongoose'),
+var fs = require('fs'),
+	mongoose = require('mongoose'),
 	dbURI = process.env.MONGODB || process.env.MONGOHQ_URL || process.env.MONGODB_URI;
 
 mongoose.Promise = require('bluebird');
 
 mongoose.connect(dbURI, {
-	useMongoClient: true
+	useMongoClient: true,
+	config: {
+		autoIndex: process.env.NO_INDEX ? false : true
+	}
 });
 
 mongoose.set('debug', process.env.NODE_ENV === 'development');
@@ -28,5 +32,7 @@ process.on('SIGINT', function() {
 		process.exit(0);
 	});
 });
+
+fs.readdirSync('./app/models').forEach( model => require('models/' + model) );
 
 module.exports = mongoose;

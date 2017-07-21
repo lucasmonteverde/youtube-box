@@ -2,7 +2,7 @@
 
 var mongoose = require('mongoose');
 
-var VideoSchema = new mongoose.Schema({
+var schema = new mongoose.Schema({
 	_id: String,
 	title: String,
 	description: String,
@@ -22,4 +22,4 @@ var VideoSchema = new mongoose.Schema({
 	versionKey: false
 });
 
-module.exports = mongoose.model('Video', VideoSchema);
+module.exports = mongoose.model('Video', schema);

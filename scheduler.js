@@ -7,13 +7,17 @@ if ( 'production' !== process.env.NODE_ENV ) {
 	require('dotenv').config({ silent: true });
 }
 
+process.env.NO_INDEX = 1;
+
 require('config/db'),
 require('config/passport');
 
-var Sync = require('jobs/sync');
+var Job = require('jobs/' + process.argv.slice(2) );
+
+if ( Job ) {
 	
-Sync.updateSubscriptions();
-
-//Sync.updateChannels();
-
-//Sync.updateVideos();
+	Job.run()
+		.then( () => process.exit(0) )
+		.catch( () => process.exit(1) );
+	
+}

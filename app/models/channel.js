@@ -2,7 +2,7 @@
 
 var mongoose = require('mongoose');
 
-var ChannelSchema = new mongoose.Schema({
+var schema = new mongoose.Schema({
 	_id: String,
 	title: String,
 	description: String,
@@ -14,4 +14,4 @@ var ChannelSchema = new mongoose.Schema({
 	versionKey: false
 });
 
-module.exports = mongoose.model('Channel', ChannelSchema);
+module.exports = mongoose.model('Channel', schema);
