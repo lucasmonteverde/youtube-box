@@ -1,6 +1,6 @@
 'use strict';
 
-var router = require('express').Router(),
+const router = require('express').Router(),
 	Promise = require('bluebird'),
 	helpers = require('config/helpers'),
 	Cleanup = require('jobs/cleanup'),
@@ -11,7 +11,7 @@ var router = require('express').Router(),
 
 router.all('*', helpers.isAdmin);
 
-var mostWatchedChannels = function(total) {
+function mostWatchedChannels(total) {
 	
 	return Subscription.aggregate([
 		{ $project : { channels : 1, _id : -1 } }, //select fields
@@ -30,7 +30,7 @@ var mostWatchedChannels = function(total) {
 	});
 };
 
-var mostWatchedVideos = function(total) {
+function mostWatchedVideos(total) {
 	
 	return Subscription.aggregate([
 		{ $project : { videos : 1, _id : -1 } }, //select fields
@@ -56,7 +56,7 @@ var mostWatchedVideos = function(total) {
 };
 
 //http://stackoverflow.com/questions/7811163/how-to-query-for-documents-where-array-size-is-greater-than-one-1-in-mongodb/15224544#15224544
-var mostActiveUsers = function(total) {
+function mostActiveUsers(total) {
 	
 	return Subscription
 			.find({ 'watched.1': {$exists: true}})
@@ -67,7 +67,7 @@ var mostActiveUsers = function(total) {
 };
 
 
-router.get('/', function(req, res, next) {
+router.get('/', (req, res, next) => {
 	
 	return Promise.props({
 		users: User.count(),
@@ -78,55 +78,35 @@ router.get('/', function(req, res, next) {
 		mostWatchedVideos: mostWatchedVideos(5),
 		mostActiveUsers: mostActiveUsers(5)
 	})
-	.then(function( result ) {
-		
+	.then( result =>{
 		result.title = 'Dashboard';
-		
 		res.render('admin', result);
 	})
-	.catch(function(e) {
-		return next(e);
-	});
+	.catch(e => next(e));
 	
 });
 
-router.get('/cleanup/videos', function(req, res){
+router.get('/cleanup/videos', (req, res) => {
 	
-	Cleanup.removeOldVideos().then(function(){
-		
-		res.json('done');
-		
-	});
+	Cleanup.removeOldVideos().then( () => res.json('done') );
 	
 });
 
 router.get('/cleanup/user/:id', function(req, res){
 	
-	Cleanup.deleteUser(req.params.id).then(function(){
-		
-		res.json('done');
-		
-	});
+	Cleanup.deleteUser(req.params.id).then( () => res.json('done') );
 	
 });
 
 router.get('/cleanup/subscriptions', function(req, res){
 	
-	Cleanup.removeVideos().then(function(){
-		
-		res.json('done');
-		
-	});
+	Cleanup.removeVideos().then( () => res.json('done') );
 	
 });
 
 router.get('/cleanup/channels', function(req, res){
 	
-	Cleanup.removeChannels().then(function(){
-		
-		res.json('done');
-		
-	});
+	Cleanup.removeChannels().then( () => res.json('done') );
 	
 });
 

@@ -1,26 +1,22 @@
 'use strict';
 
-var router = require('express').Router(),
+const router = require('express').Router(),
 	helpers = require('config/helpers'),
 	Subscription = require('models/subscription');
 
 router.all('*', helpers.isLoggedIn);
 
-router.get('/', function(req, res, next) {
+router.get('/', (req, res, next) => {
 	
 	Subscription
 		.findOne({user:req.user._id})
 		.select('channels videos')
 		.lean()
-		.then(function(subscriptions){
-			res.json( subscriptions );
-		})
-		.catch(function(e) {
-			return next(e);
-		});
+		.then( subscriptions => res.json( subscriptions ) )
+		.catch( e => next(e) );
 });
 
-router.get('/all', function(req, res, next) {
+router.get('/all', (req, res, next) => {
 	
 	Subscription
 		.find()
@@ -28,42 +24,32 @@ router.get('/all', function(req, res, next) {
 		.sort('lastLogin')
 		.populate('user')
 		.lean()
-		.then(function(subscriptions) {
-			res.json( subscriptions );
-		})
-		.catch(function(e) {
-			return next(e);
-		});
+		.then( subscriptions =>res.json( subscriptions ) )
+		.catch( e => next(e) );
 });
 
-router.post('/watched', function(req, res, next) {
+router.post('/watched', (req, res, next) => {
 	
 	if( ! req.body.video ) {
 		return next(new Error('video is not set'));
 	}
 		
-	var videosId = req.body.video.split(',');
+	const videosId = req.body.video.split(',');
 	
 	console.log( videosId );
 
 	Subscription
-		.update( {
+		.updateMany( {
 			'user': req.user._id,
 			'videos._id': { $in: videosId }
 		}, { $set: {
-			'videos.$.watched': Date.now()
-		}}, { multi: true })
-		.then(function(){
-			
-			res.json({
-				status: true,
-				message: 'video watched saved!'
-			});
-			
-		})
-		.catch(function(e) {
-			return next(e);
-		});
+			'videos.$[].watched': Date.now()
+		}})
+		.then(() => res.json({
+			status: true,
+			message: 'video watched saved!'
+		}))
+		.catch(e => next(e) );
 		
 });
 	

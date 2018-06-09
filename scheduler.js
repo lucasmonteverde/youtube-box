@@ -12,7 +12,7 @@ process.env.NO_INDEX = 1;
 require('config/db'),
 require('config/passport');
 
-var Job = require('jobs/' + process.argv.slice(2) );
+const Job = require('jobs/' + process.argv.slice(2) );
 
 if ( Job ) {
 	

@@ -1,6 +1,6 @@
 'use strict';
 
-var moment = require('moment'),
+const moment = require('moment'),
 	Subscription = require('models/subscription'),
 	User = require('models/user'),
 	Channels = require('models/channel'),

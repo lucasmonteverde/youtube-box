@@ -1,6 +1,6 @@
 'use strict';
 
-var _ = require('lodash'),
+const _ = require('lodash'),
 	moment = require('moment'),
 	API = require('libs/api'),
 	Video = require('mongoose').model('Video');
@@ -13,11 +13,10 @@ function videos(videoId, nextPageToken) {
 		fields: 'nextPageToken,items(id,snippet,contentDetails,statistics)',
 		pageToken: nextPageToken
 	}, videos, videoId)
-	.each(function(item) {
+	.each( item => {
 		
-		var data = {
+		let data = {
 			title: item.snippet.title,
-			description: item.snippet.description,
 			published: item.snippet.publishedAt,
 			channel: item.snippet.channelId,
 			definition: item.contentDetails.definition,
@@ -36,9 +35,7 @@ function videos(videoId, nextPageToken) {
 		
 		return Video.findByIdAndUpdate(item.id, data, { upsert: true });
 	})
-	.catch(function(err) {
-		console.error('Error:videos', err);
-	});
+	.catch( err => console.error('Error:videos', err) );
 }
 
 function run() {
@@ -48,15 +45,9 @@ function run() {
 	})
 	.select('_id')
 	.lean()
-	.then(function(videos){
-		return _(videos).map('_id').chunk(50).value();
-	})
-	.each(function(ids){
-		return videos(ids.join(','));
-	})
-	.catch(function(err) {
-		console.error('Error:updateVideos', err);
-	});
+	.then( videos =>_(videos).map('_id').chunk(50).value() )
+	.each( ids => videos(ids.join(',')) )
+	.catch( err => console.error('Error:updateVideos', err) );
 }
 
 module.exports = { run, videos };

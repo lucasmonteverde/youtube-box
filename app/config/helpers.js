@@ -1,6 +1,6 @@
 'use strict';
 
-var moment = require('moment');
+const moment = require('moment');
 
 exports.isLoggedIn = function(req, res, next) {
 	return req.isAuthenticated() ? next() : res.redirect('/');
@@ -18,7 +18,7 @@ exports.formatHTML = function(text) {
 };
 
 exports.excerpt = function(text) {
-	var limit = 100;
+	const limit = 100;
 	
 	if( text && text.length > limit) {
 		text = text.substring(0,limit) + '...';
@@ -41,8 +41,9 @@ exports.formatRating = function(likes, dislikes) {
 };
 
 exports.formatRatingValue = function(likes, dislikes) {
-	var rating = likes / (likes + dislikes),
-		value = 'info';
+	const rating = likes / (likes + dislikes);
+
+	let value = 'info';
 	
 	if(rating >= 0.75) {
 		value = 'success';
@@ -55,10 +56,10 @@ exports.formatRatingValue = function(likes, dislikes) {
 
 exports.formatLargeNumber = function(num, digits) {
 	
-	var units = ['k', 'M', 'B'],
-		decimal;
+	const units = ['k', 'M', 'B'];
+	let decimal;
 
-	for(var i = units.length - 1; i >= 0; i--) {
+	for(let i = units.length - 1; i >= 0; i--) {
 		decimal = Math.pow(1000, i + 1);
 
 		if(num <= -decimal || num >= decimal) {

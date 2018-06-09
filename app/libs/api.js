@@ -1,6 +1,6 @@
 'use strict';
 
-var request = require('request-promise');
+const request = require('request-promise');
 
 module.exports = function(method, filter, callback, callbackArgs) {
 	
@@ -9,7 +9,7 @@ module.exports = function(method, filter, callback, callbackArgs) {
 	filter.prettyPrint = false;
 	filter.maxResults = 50;
 	
-	var params = {
+	let params = {
 		url: 'https://www.googleapis.com/youtube/v3/' + method,
 		qs: filter,
 		json: true,
@@ -25,10 +25,10 @@ module.exports = function(method, filter, callback, callbackArgs) {
 		filter.key = process.env.YOUTUBE_API_KEY;
 	}
 	
-	return request(params).then(function(data){
+	return request(params).then( data => {
 		//console.timeEnd('request');
 		
-		var cbArgs = callbackArgs;
+		let cbArgs = callbackArgs;
 		
 		if( data.nextPageToken && callback ) {
 			//console.log('callback', method, filter);
@@ -40,7 +40,7 @@ module.exports = function(method, filter, callback, callbackArgs) {
 		
 		return data.items;
 	})
-	.catch(function(e){
+	.catch( e => {
 		console.error('request', e.error, callbackArgs);
 		
 		return [];

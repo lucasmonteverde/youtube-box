@@ -1,6 +1,6 @@
 'use strict';
 
-var router = require('express').Router(),
+const router = require('express').Router(),
 	Promise = require('bluebird'),
 	Feed = require('feed'),
 	cache = require('config/cache').cache,
@@ -10,18 +10,18 @@ var router = require('express').Router(),
 	
 Promise.promisifyAll(cache);
 
-var buildFeed = function( req ){
+function buildFeed( req ){
 	
-	var feed, user, query;
+	let feed, user, query;
 	
-	if( ! req.user ) {
-		query = User.findOne({'youtube.id': req.params.user}).lean();
-	}else{
+	if ( req.user ) {
 		query = Promise.resolve(req.user);
+	} else {
+		query = User.findOne({'youtube.id': req.params.user}).lean();
 	}
 	
 	return query
-		.then(function(item){
+		.then(item => {
 			user = item;
 			
 			return Subscription
@@ -29,7 +29,7 @@ var buildFeed = function( req ){
 						.select('channels')
 						.lean();
 		})
-		.then(function(subscription){
+		.then(subscription => {
 			
 			feed = new Feed({
 				title: 'New Subscription Videos for user: ' + user.name,
@@ -49,15 +49,11 @@ var buildFeed = function( req ){
 						.lean();
 						
 		})
-		.then(function(videos){
-			return videos;
-		})
-		.each(function(video){
+		.then(videos => videos)
+		.each(video => {
 			
 			feed.addItem({
 				title: video.title,
-				//description: video.description,
-				content: video.description,
 				link: 'https://www.youtube.com/watch?v=' + video._id,
 				date: video.published,
 				image: 'https://i.ytimg.com/vi/' + video._id + '/hqdefault.jpg',
@@ -68,13 +64,11 @@ var buildFeed = function( req ){
 			});
 			
 		})
-		.then(function(){
-			return feed.rss2()
-		});
+		.then(() => feed.rss2());
 	
 };
 
-router.get('/:user', function(req, res, next) {
+router.get('/:user', (req, res, next) => {
 	
 	if( ! req.params.user ) {
 		next(new Error('User not defined'));
@@ -82,10 +76,8 @@ router.get('/:user', function(req, res, next) {
 	
 	cache
 		.getAsync(req.originalUrl)
-		.then(function(value){
-			return value || buildFeed(req);
-		})
-		.then(function( feed ){
+		.then(value => value || buildFeed(req))
+		.then(feed => {
 			
 			res.set('Content-Type', 'text/xml');
 			
@@ -95,7 +87,7 @@ router.get('/:user', function(req, res, next) {
 			
 			feed = null;
 		})
-		.catch(function(e){
+		.catch( e => {
 			console.error('feed error', e.error);
 			
 			return next(e);

@@ -1,6 +1,6 @@
 'use strict';
 
-var router = require('express').Router(),
+const router = require('express').Router(),
 	helpers = require('config/helpers'),
 	Subscriptions = require('jobs/subscription').subscriptions,
 	Channels = require('jobs/channel').channels,
@@ -8,36 +8,31 @@ var router = require('express').Router(),
 	
 router.all('*', helpers.isLoggedIn);
 
-router.get('/subscriptions', function(req, res) {
-	
+router.get('/subscriptions', (req, res) => {
 	Subscriptions(req.user);
 	
 	res.send('subscriptions done');
 });
 
-router.get('/channels', function(req, res) {
+router.get('/channels', (req, res) => {
 	
 	Channels();
 	
 	res.send('channels done');
 });
 
-router.get('/cleanup/channels', function(req, res) {
+router.get('/cleanup/channels', (req, res) => {
 	
-	Cleanup.removeChannels().then(function( data ){
-		res.json(data);
-	});
+	Cleanup.removeChannels().then(data => res.json(data) );
 	
 });
 
-router.get('/cleanup/videos', function(req, res) {
+router.get('/cleanup/videos', (req, res) => {
 	
-	Cleanup.removeOldVideos().then(function( ){
-		res.send('videos upgrade done');
-	});
+	Cleanup.removeOldVideos().then( () => res.send('videos upgrade done') );
 });
 
-router.get('/cleanup/subscription', function(req, res) {
+router.get('/cleanup/subscription', (req, res) => {
 	
 	Cleanup.subscriptionVideosUpgrade();
 	

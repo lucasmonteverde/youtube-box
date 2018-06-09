@@ -1,6 +1,6 @@
 'use strict';
 
-var request = require('request-promise'),
+const request = require('request-promise'),
 	Promise = require('bluebird'),
 	moment = require('moment'),
 	refresh = require('passport-oauth2-refresh');
@@ -15,7 +15,7 @@ function refreshAccessToken(user) {
 	
 	return refresh
 		.requestNewAccessTokenAsync('youtube', user.youtube.refreshToken)
-		.then(function(accessToken) {
+		.then( accessToken => {
 			console.log('accessToken', accessToken);
 			
 			user.youtube.accessToken = accessToken;
@@ -25,7 +25,7 @@ function refreshAccessToken(user) {
 			
 			return user.save();
 		})
-		.catch(function(err) {
+		.catch(err => {
 			console.error('Refresh Error', err, user);
 
 			if( err.statusCode === 400 ) { //Token has been expired or revoked.
@@ -43,7 +43,7 @@ function getUserEmail(user) {
 			bearer: user.youtube.accessToken
 		}
 	})
-	.then(function(result) {
+	.then( result => {
 		
 		if( result && result.emails ) {
 			user.email = result.emails[0].value;
@@ -51,9 +51,7 @@ function getUserEmail(user) {
 			return user.save();
 		}
 	})
-	.catch(function(e){
-		console.error('Error:getUserEmail', e.error);
-	});
+	.catch( e => console.error('Error:getUserEmail', e.error) );
 }
 
 module.exports = { getUserEmail, refreshAccessToken };

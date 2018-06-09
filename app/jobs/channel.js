@@ -1,6 +1,6 @@
 'use strict';
 
-var _ = require('lodash'),
+const _ = require('lodash'),
 	moment = require('moment'),
 	API = require('libs/api'),
 	videos = require('jobs/video').videos,
@@ -17,38 +17,32 @@ function activities(channel, nextPageToken) {
 		publishedAfter: channel.updatedDate || moment().subtract(1, 'month').toISOString(),
 		pageToken: nextPageToken
 	}, activities, channel)
-	.filter(function(item) {
-		return item.snippet.type === 'upload';
-	})
-	.then(function(items) {
+	.filter( item => item.snippet.type === 'upload')
+	.then( items => {
 		
-		if( ! nextPageToken ) {
+		if ( ! nextPageToken ) {
 			channel.updatedDate = Date.now();
 			channel.save();
 		}
 			
-		if( items && items.length ) {
+		if ( items && items.length ) {
 			console.log('activities', items[0].snippet.channelTitle, items.length);
 			
-			var videosId = _.map(items, 'contentDetails.upload.videoId');
+			const videosId = _.map(items, 'contentDetails.upload.videoId');
 			
-			var documents = videosId.map(function(item) {
-				return { _id: item };
-			});
+			const documents = videosId.map(item => { _id: item });
 
-			Subscription.update({
+			Subscription.updateMany({
 				channels: channel._id
 			}, {
-				$addToSet: { videos: { $each: documents } }
-			}, {multi: true});
+				$push: { videos: documents }
+			});
 
 			return videos(videosId.join(','));
 		}
 
 	})
-	.catch(function(err) {
-		console.error('Error:activities', err);
-	});
+	.catch( err => console.error('Error:activities', err) );
 }
 
 function run() {
@@ -56,15 +50,9 @@ function run() {
 	return Channel
 		.find()
 		.select('updatedDate')
-		.then(function(channels) {
-			return channels;
-		})
-		.each(function(channel) {
-			return activities(channel);
-		})
-		.catch(function(err) {
-			console.error('Error:updateChannels', err);
-		});
+		.then( channels => channels )
+		.each( channel => activities(channel) )
+		.catch( err => console.error('Error:updateChannels', err) );
 }
 
 module.exports = { run };

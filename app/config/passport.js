@@ -1,20 +1,16 @@
 'use strict';
 
-var passport = require('passport'),
+const passport = require('passport'),
 	YoutubeStrategy = require('passport-youtube-v3').Strategy,
 	refresh = require('passport-oauth2-refresh'),
 	UserControl = require('libs/user'),
 	User = require('models/user');
 	
-var adminUsers = ['UCugDN9_9V-RKDB_ilYYE4RA'];
+const adminUsers = ['UCugDN9_9V-RKDB_ilYYE4RA'];
 	
-passport.serializeUser(function(user, done) {
-	done(null, user);
-});
+passport.serializeUser((user, done) => done(null, user));
 
-passport.deserializeUser(function(user, done) {
-	done(null, user);
-});
+passport.deserializeUser((user, done) => done(null, user));
 
 /*YoutubeStrategy.prototype.authorizationParams = function(options) {
 	return {
@@ -23,7 +19,7 @@ passport.deserializeUser(function(user, done) {
 	};
 };*/
 
-var youtube = new YoutubeStrategy({
+const youtube = new YoutubeStrategy({
 	clientID: process.env.YOUTUBE_CLIENT_ID,
 	clientSecret: process.env.YOUTUBE_CLIENT_SECRET,
 	callbackURL: '/auth/youtube/callback',
@@ -32,7 +28,7 @@ var youtube = new YoutubeStrategy({
 		'email'
 		//'https://www.googleapis.com/auth/userinfo.email',
 	]
-}, function(accessToken, refreshToken, profile, done) {
+}, (accessToken, refreshToken, profile, done) => {
 	console.log('profile', profile);
 	
 	if( refreshToken ) {
@@ -42,7 +38,7 @@ var youtube = new YoutubeStrategy({
 	//console.log('refreshToken', refreshToken);
 	User
 		.findOne({ 'youtube.id': profile.id })
-		.then(function(user) {
+		.then(user => {
 			
 			user = user || new User({
 				name: profile.displayName || 'user',
@@ -51,20 +47,20 @@ var youtube = new YoutubeStrategy({
 				}
 			});
 			
-			try{
+			try {
 				user.avatar = profile._json && profile._json.items[0].snippet.thumbnails.medium.url;
-			}catch(err){
+			} catch(err) {
 				console.error('thumbnail not found');
 			}
 			
-			if( adminUsers.indexOf(user.youtube.id) > -1 ) {
+			if ( adminUsers.indexOf(user.youtube.id) > -1 ) {
 				user.admin = true;
 			}
 			
 			user.youtube.accessToken = accessToken;
 			user.youtube.accessTokenUpdate = new Date().toISOString();
 			
-			if( refreshToken ) {
+			if ( refreshToken ) {
 				user.youtube.refreshToken = refreshToken;
 			}
 			
@@ -72,7 +68,7 @@ var youtube = new YoutubeStrategy({
 			
 			user.markModified('youtube');
 				
-			user.save(function (err) {
+			user.save(err => {
 				if (err) console.error(err);
 					
 				if( ! user.email ) {

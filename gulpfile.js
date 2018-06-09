@@ -1,13 +1,13 @@
 'use strict';
 
-var gulp		= require('gulp'),
+const gulp		= require('gulp'),
 	$			= require('gulp-load-plugins')(),
 	del			= require('del'),
 	browserSync = require('browser-sync');
 	
 require('dotenv').load();
 	
-var paths = {
+const paths = {
 	scripts: ['src/scripts/vendor/*.js', 'src/scripts/app/*.js', 'src/scripts/app.js'],
 	styles: 'src/styles/**/*.scss',
 	images: 'src/images/**/*.{png,jpeg,jpg,gif}',
@@ -27,7 +27,7 @@ gulp.task('lint', function () {
 });
 
 gulp.task('scripts', ['lint'], function () {
-	var file = 'app.min.js';
+	const file = 'app.min.js';
 	
 	return gulp.src(paths.scripts)
 		.pipe($.plumber())

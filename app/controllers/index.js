@@ -1,15 +1,15 @@
 'use strict';
 
-var router = require('express').Router(),
+const router = require('express').Router(),
 	_ = require('lodash'),
 	moment = require('moment'),
 	mongoose = require('mongoose'),
 	Subscription = mongoose.model('Subscription'),
 	Video = mongoose.model('Video');
 
-var getVideos = function( req ) {
+function getVideos( req ) {
 
-	var data = {
+	let data = {
 		sort: req.query.sort || req.cookies.sort,
 		all: req.query.all || req.cookies.all
 	};
@@ -28,45 +28,44 @@ var getVideos = function( req ) {
 			} 
 		})
 		.lean()
-		.then(function(subscription) {
+		.then(subscription => {
 			
-			if( ! subscription ) return [];
+			if ( ! subscription ) return [];
+
+			//console.log(subscription);
 				
 			data.channels = subscription.channels;
 
-			var news = ( subscription.videos || [] ).filter(function(video) {
-				return !!! video.watched;
-			});
+			/* var news = ( subscription.videos || [] )
+				.filter(video => ! video.watched)
+				.map(video => video._id ); */
 			
-			/*news = news.map(function( video ) {
-				return video._id;
-			});*/
+			const query = Video.find();
 			
-			var query = Video.find();
+			//query.where('_id').in( news );
 			
-			query.where('_id').in( news ); //_.map(subscription.videos, '_id')
-			
-			if( ! data.all ) {
+			if ( ! data.all ) {
 				query.where('published').gte( moment().subtract(2, 'month').valueOf() );
 			}
 			
-			if( req.query.search ) {
+			if ( req.query.search ) {
 				query.where('title', new RegExp(req.query.search, 'i'));
 				data.search = req.query.search;
 			}
 			
-			if( req.query.channel ) {
+			if ( req.query.channel ) {
 				query.where('channel', req.query.channel);
 				data.channel = req.query.channel;
-			}/*else{
+			} else {
 				query.where('channel').in(subscription.channels);
-			}*/
+			}
 			
 			query.sort(data.sort ? data.sort : '-published');
+			query.limit(100);
 			
 			return query.lean();
 		})
-		.then(function(videos) {
+		.then(videos => {
 			
 			//manual populate
 			_.each(videos, function(video) {
@@ -81,22 +80,22 @@ var getVideos = function( req ) {
 		});
 };
 
-router.get('/', function(req, res, next) {
+router.get('/', (req, res, next) => {
 	
 	if( req.isAuthenticated() ){
 		
 		getVideos(req)
-			.then(function( data ) {
+			.then(data => {
 				
 				//TODO: Cookie options management
-				if( data.sort ) {
+				if ( data.sort ) {
 					res.cookie('sort', data.sort, {
 						maxAge: 2592000000,
 						httpOnly: true
 					});
 				}
 				
-				if( data.all ) {
+				if ( data.all ) {
 					res.cookie('all', data.all, {
 						maxAge: 2592000000,
 						httpOnly: true
@@ -104,11 +103,10 @@ router.get('/', function(req, res, next) {
 				}
 				
 				res.format({
-					json: function(){
+					json() {
 						res.json( data.videos );
 					},
-					html: function(){
-						
+					html() {
 						data.title = 'Videos';
 						
 						res.render('videos', data);
@@ -116,7 +114,7 @@ router.get('/', function(req, res, next) {
 				});
 				
 			})
-			.catch(function(err) {
+			.catch(err => {
 				console.error(err);
 				return next(err);
 			});
@@ -124,8 +122,7 @@ router.get('/', function(req, res, next) {
 		
 		//res.render('videos', data);
 	
-	}else{
-		
+	} else {
 		res.render('index', {
 			layout: 'landing',
 			message: req.session.messages
@@ -134,7 +131,7 @@ router.get('/', function(req, res, next) {
 	
 });
 
-router.get('/watched', function(req, res, next) {
+router.get('/watched', (req, res, next) => {
 	
 	Subscription
 		.findOne({user:req.user._id})
@@ -155,7 +152,7 @@ router.get('/watched', function(req, res, next) {
 		})
 		.sort('-watched.date')
 		.lean()
-		.then(function(data){
+		.then(data => {
 			
 			data.videos = _.chain(data.watched)
 										.reverse()
@@ -171,11 +168,10 @@ router.get('/watched', function(req, res, next) {
 			delete data.watched;
 			
 			res.format({
-				json: function(){
+				json() {
 					res.json( data );
 				},
-				html: function(){
-					
+				html() {
 					data.title = 'Watched';
 		
 					res.render('videos', data);
@@ -183,7 +179,7 @@ router.get('/watched', function(req, res, next) {
 			});
 			
 		})
-		.catch(function(err) {
+		.catch(err => {
 			console.error(err);
 			return next(err);
 		});

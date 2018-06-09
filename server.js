@@ -1,6 +1,6 @@
 'use strict';
 
-var express = require('express'),
+const express = require('express'),
 	logger = require('morgan'),
 	cookieParser = require('cookie-parser'),
 	bodyParser = require('body-parser'),
@@ -16,9 +16,8 @@ var express = require('express'),
 	
 require('config/db');
 
-var rollbar = require('rollbar').init({
+const rollbar = require('rollbar').init({
 	accessToken: process.env.ROLLBAR_ACCESS_TOKEN,
-	handleUncaughtExceptions: true,
 	codeVersion: require('./package.json').version
 });
 
@@ -59,44 +58,44 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
 	res.locals.user = req.user;
 	res.locals.path = req.path;
 	
 	next();
 });
 
-fs.readdirSync('./app/controllers').forEach(function (ctrl) {
+fs.readdirSync('./app/controllers').forEach(ctrl => {
 	app.use('/' + ctrl.replace(/\.js|index/g, ''), require('controllers/' + ctrl));
 });
 
-app.use(function(req, res, next) {
-	var err = new Error('Not Found');
+app.use((req, res, next) => {
+	let err = new Error('Not Found');
 	err.status = 404;
 	next(err);
 });
 
  /*jshint unused:false*/
-app.use(function(err, req, res, next) {
+app.use((err, req, res, next) => {
 	
 	if ( ! err.status || err.status >= 500 ) {
 		console.error( 'App Error', err.message, err.stack );
 		rollbar.handleError(err, req);
 	}
 	
-	var response = {
+	const response = {
 		status: false,
 		message: err.message,
 		error: app.get('env') !== 'production' ? err : {}
 	};
 	
 	res.status( err.status || 500 ).format({
-		html: function(){
+		html() {
 			response.layout = false;
 			res.render(err.status === 404 ? '404' : 'error', response);
 		},
-		json: function(){
-			res.json( response );
+		json() {
+			res.json( response );	
 		}
 	});
 });

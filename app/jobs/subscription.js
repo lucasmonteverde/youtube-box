@@ -1,6 +1,6 @@
 'use strict';
 
-var _ = require('lodash'),
+const _ = require('lodash'),
 	API = require('libs/api'),
 	UserControl = require('libs/user'),
 	mongoose = require('mongoose'),
@@ -17,11 +17,11 @@ function subscriptions(user, nextPageToken) {
 		fields: 'nextPageToken,items(snippet)',
 		pageToken: nextPageToken
 	}, subscriptions, user)
-	.then(function(items) {
+	.then( items => {
 		
 		if( items && items.length ) {
 			
-			var channelsId = _.map(items, 'snippet.resourceId.channelId');
+			const channelsId = _.map(items, 'snippet.resourceId.channelId');
 			
 			return Subscription.update({user: user._id}, nextPageToken ? {
 				$addToSet: { channels: { $each: channelsId } }
@@ -33,9 +33,7 @@ function subscriptions(user, nextPageToken) {
 		console.log('channels', items && items.length);
 		
 	})
-	.catch(function(err) {
-		console.error('Error:subscriptions', err);
-	});
+	.catch( err => console.error('Error:subscriptions', err) );
 	
 }
 
@@ -44,15 +42,9 @@ function run() {
 	return User
 		.find({status: true})
 		.select('email youtube')
-		.then(function(users) {
-			return users;
-		})
-		.each(function(user){
-			return UserControl.refreshAccessToken(user).then(subscriptions);
-		})
-		.catch(function(err) {
-			console.error('Error:updateSubscriptions', err);
-		});
+		.then( users => users )
+		.each( user => UserControl.refreshAccessToken(user).then(subscriptions) )
+		.catch( err => console.error('Error:updateSubscriptions', err) );
 }
 
 module.exports = { run, subscriptions };
